@@ -1,6 +1,23 @@
-// system.cpp: implementation of the System class.
-//
-//////////////////////////////////////////////////////////////////////
+/*
+ * Delta3D Open Source Game and Simulation Engine
+ * Copyright (C) 2004-2005 MOVES Institute
+ *
+ * This library is free software; you can redistribute it and/or modify it under
+ * the terms of the GNU Lesser General Public License as published by the Free
+ * Software Foundation; either version 2.1 of the License, or (at your option)
+ * any later version.
+ *
+ * This library is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU Lesser General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this library; if not, write to the Free Software Foundation, Inc.,
+ * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ * Christian Noon
+ */
 
 #include <prefix/dtcoreprefix-src.h>
 #include <dtCore/system.h>
@@ -51,7 +68,6 @@ namespace dtCore
          mStats = NULL;
       }
 
-
       /////////////////////////////////////////////////////////////////
       float EndStatTimer(const std::string& attribName) 
       {
@@ -94,6 +110,8 @@ namespace dtCore
       , mSimulationClockTime(0)
       , mLastDrawClockTime(0)
       , mSimulationTime(0.0)
+		, mSimDT(0.0)
+   	, mRealDT(0.0)
       , mCorrectSimulationTime(0.0)
       , mFrameTime(1.0/60.0)
       , mTimeScale(1.0)
@@ -314,6 +332,8 @@ namespace dtCore
    {
       mRealClockTime += Timer_t(realDT * 1000000);
       const double simDT = realDT * mTimeScale;
+		mSimDT = simDT;
+		mRealDT = realDT;
 
       const float simFrameTime = mFrameTime * mTimeScale;
 
@@ -346,32 +366,32 @@ namespace dtCore
 
       //const double realFrameTime = realDT + mAccumulationTime;
       const double realFrameTime = mFrameTime;
-      EventTraversal(simFrameTime, realFrameTime);
-      PostEventTraversal(simFrameTime, realFrameTime);
-      PreFrame(simFrameTime, realFrameTime);
+      EventTraversal();
+      PostEventTraversal();
+      PreFrame();
 
       //if we're ahead of the desired sim time, then draw.
       if (mSimulationTime >= mCorrectSimulationTime
          || (mRealClockTime - mLastDrawClockTime) > mMaxTimeBetweenDraws)
       {
          mLastDrawClockTime = mRealClockTime;
-         CameraSynch(simFrameTime, realFrameTime);
-         FrameSynch(simFrameTime, realFrameTime);
-         Frame(simFrameTime, realFrameTime);
+         CameraSynch();
+         FrameSynch();
+         Frame();
       }
-      PostFrame(simFrameTime, realFrameTime);
+      PostFrame();
 
       mAccumulationTime = 0;
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   ///private
    void System::SystemStep()
    {
       const Timer_t lastClockTime  = mTickClockTime;
       mTickClockTime = mClock.Tick();
 
       const double realDT = mClock.DeltaSec(lastClockTime, mTickClockTime);
+		mRealDT = realDT;
       if (mAccumulateLastRealDt)
       {
          mAccumulationTime += mClock.DeltaSec(lastClockTime, mTickClockTime);
@@ -381,12 +401,12 @@ namespace dtCore
       {
          mSystemImpl->mTotalFrameTime = 0.0;  // reset frame timer for stats
          mWasPaused = true;
-         EventTraversal(0.0, realDT);
-         PostEventTraversal(0.0, realDT);
+         EventTraversal();
+         PostEventTraversal();
          Pause(realDT);
-         CameraSynch(0.0, realDT);
-         FrameSynch(0.0, realDT);
-         Frame(0.0, realDT);
+         CameraSynch();
+         FrameSynch();
+         Frame();
       }
       else
       {
@@ -400,17 +420,18 @@ namespace dtCore
 
             // update simulation time variable(s)
             const double simDT = realDT * mTimeScale;
+				mSimDT = simDT;
             mSimulationTime      += simDT;
             mSimTimeSinceStartup += simDT;
             mSimulationClockTime += Timer_t(simDT * 1000000);
             
-            EventTraversal(simDT, realDT);
-            PostEventTraversal(simDT, realDT);
-            PreFrame(simDT, realDT);
-            CameraSynch(simDT, realDT);
-            FrameSynch(simDT, realDT);
-            Frame(simDT, realDT);
-            PostFrame(simDT, realDT);
+            EventTraversal();
+            PostEventTraversal();
+            PreFrame();
+            CameraSynch();
+            FrameSynch();
+            Frame();
+            PostFrame();
          }
          else
          {
@@ -424,8 +445,6 @@ namespace dtCore
          mSystemImpl->mStats->setAttribute(mSystemImpl->mStats->getLatestFrameNumber(), 
             "FullDeltaFrameTime", mSystemImpl->mTotalFrameTime);
       }
-
-
    }
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -460,6 +479,30 @@ namespace dtCore
       mSimulationTime = mCorrectSimulationTime = 0.0;
       mLastDrawClockTime = mRealClockTime;
       mSimulationClockTime = mRealClockTime;
+   }
+
+   ////////////////////////////////////////////////////////////////////////////////
+   void System::CalculateSimDeltas()
+   {
+      const Timer_t lastClockTime  = mTickClockTime;
+      mTickClockTime = mClock.Tick();
+
+      mRealDT = mClock.DeltaSec(lastClockTime, mTickClockTime);
+      if (mAccumulateLastRealDt)
+      {
+         mAccumulationTime += mClock.DeltaSec(lastClockTime, mTickClockTime);
+      }
+
+      mSystemImpl->mTotalFrameTime = 0.0;  // reset frame timer for stats
+
+      // update real time variable(s)
+      mRealClockTime  += Timer_t(mRealDT * 1000000);
+
+      // update simulation time variable(s)
+      mSimDT = mRealDT * mTimeScale;
+      mSimulationTime      += mSimDT;
+      mSimTimeSinceStartup += mSimDT;
+      mSimulationClockTime += Timer_t(mSimDT * 1000000);
    }
 
    ////////////////////////////////////////////////////////////////////////////////
@@ -510,28 +553,27 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::EventTraversal(const double deltaSimTime, const double deltaRealTime)
+   void System::EventTraversal()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_EVENT_TRAVERSAL))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_EVENT_TRAVERSAL, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_EVENT_TRAVERSAL);
-
       }
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::PostEventTraversal(const double deltaSimTime, const double deltaRealTime)
+   void System::PostEventTraversal()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_POST_EVENT_TRAVERSAL))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_POST_EVENT_TRAVERSAL, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_POST_EVENT_TRAVERSAL);
@@ -539,13 +581,13 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::PreFrame(const double deltaSimTime, const double deltaRealTime)
+   void System::PreFrame()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_PREFRAME))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_PRE_FRAME, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_PRE_FRAME);
@@ -553,13 +595,13 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::FrameSynch(const double deltaSimTime, const double deltaRealTime)
+   void System::FrameSynch()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_FRAME_SYNCH))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_FRAME_SYNCH, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_FRAME_SYNCH);
@@ -567,13 +609,13 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::CameraSynch(const double deltaSimTime, const double deltaRealTime)
+   void System::CameraSynch()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_CAMERA_SYNCH))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_CAMERA_SYNCH, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_CAMERA_SYNCH);
@@ -581,13 +623,13 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::Frame(const double deltaSimTime, const double deltaRealTime)
+   void System::Frame()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_FRAME))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_FRAME, userData );
 
          mSystemImpl->EndStatTimer(MESSAGE_FRAME);
@@ -595,13 +637,13 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
-   void System::PostFrame(const double deltaSimTime, const double deltaRealTime)
+   void System::PostFrame()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_POSTFRAME))
       {
          mSystemImpl->StartStatTimer();
 
-         double userData[2] = { deltaSimTime, deltaRealTime };
+         double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_POST_FRAME, userData);
 
          mSystemImpl->EndStatTimer(MESSAGE_POST_FRAME);
@@ -617,4 +659,3 @@ namespace dtCore
       }
    }
 }
-
