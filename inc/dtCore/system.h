@@ -16,6 +16,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ * Christian Noon
  */
 
 #ifndef DELTA_SYSTEM
@@ -195,8 +196,6 @@ namespace dtCore
        */
       SystemStageFlags GetSystemStages() const;
 
-
-
       ///Toggles the running flag to true
       void Start();
 
@@ -261,7 +260,6 @@ namespace dtCore
        * @return the current real clock in microseconds since January 1, 1970
        */
       Timer_t GetRealClockTime() const;
-
 
       /**
        * @note the simulation clock time is a 64 bit integer in microseconds
@@ -329,6 +327,71 @@ namespace dtCore
       /// Returns true if there is a stats set.  When true, we are doing a tad more processing to do stats.
       bool IsStatsOn();
 
+      // will step the system with a fixed time step.
+      void SystemStepFixed(const double realDT);
+
+      //initializes internal variables at the start of a run.
+      void InitVars();
+
+		// Calculates all the simulation time and time deltas for updating
+		// the scene and rendering the next frame
+		void CalculateSimDeltas();
+
+      /**
+      * @param deltaSimTime The change in simulation time is seconds.
+      * @param deltaRealTime The change in real time in seconds.
+      */
+		void EventTraversal();
+
+      /**
+      * @param deltaSimTime The change in simulation time is seconds.
+      * @param deltaRealTime The change in real time in seconds.
+      */
+		void PostEventTraversal();
+
+      /**
+      * Stuff to do before the frame. Message: "preframe", delta real and time in seconds
+      * @param deltaSimTime The change in simulation time is seconds.
+      * @param deltaRealTime The change in real time in seconds.
+      */
+		void PreFrame();
+
+      /**
+       * @param deltaSimTime The change in simulation time is seconds.
+       * @param deltaRealTime The change in real time in seconds.
+       */
+		void FrameSynch();
+
+      /**
+      * @param deltaSimTime The change in simulation time is seconds.
+      * @param deltaRealTime The change in real time in seconds.
+      */
+		void CameraSynch();
+
+      /**
+       * Render the Camera, etc.  Message: "frame", delta time in seconds
+       * @param deltaSimTime The change in simulation time is seconds.
+       * @param deltaRealTime The change in real time in seconds.
+       */
+		void Frame();
+
+      /**
+       * Stuff to do after the frame.  Message: "postframe", delta time in seconds
+       * @param deltaSimTime The change in simulation time is seconds.
+       * @param deltaRealTime The change in real time in seconds.
+       */
+		void PostFrame();
+
+
+      void Pause(const double deltaRealTime);
+
+      // Intenal helper that calls Producer::Camera::frame(bool doSwap)
+      // with the proper value for doSwap.
+      void CameraFrame();
+
+      // One System frame
+      void SystemStep();
+
    private:
 
       SystemImpl* mSystemImpl;
@@ -352,6 +415,8 @@ namespace dtCore
       double mTimeScale;
       double mMaxTimeBetweenDraws;
       double mAccumulationTime;
+		double mSimDT;
+      double mRealDT;
 
       SystemStageFlags mSystemStages;
 
@@ -361,66 +426,6 @@ namespace dtCore
       bool mShutdownOnWindowClose;
       bool mPaused;
       bool mWasPaused;
-
-
-      // will step the system with a fixed time step.
-      void SystemStepFixed(const double realDT);
-
-      //initializes internal variables at the start of a run.
-      void InitVars();
-
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
-      void EventTraversal(const double deltaSimTime, const double deltaRealTime);
-
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
-      void PostEventTraversal(const double deltaSimTime, const double deltaRealTime);
-
-      /**
-      * Stuff to do before the frame. Message: "preframe", delta real and time in seconds
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
-      void PreFrame(const double deltaSimTime, const double deltaRealTime);
-
-      /**
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
-       */
-      void FrameSynch(const double deltaSimTime, const double deltaRealTime);
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
-      void CameraSynch(const double deltaSimTime, const double deltaRealTime);
-
-      /**
-       * Render the Camera, etc.  Message: "frame", delta time in seconds
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
-       */
-      void Frame(const double deltaSimTime, const double deltaRealTime);
-
-      /**
-       * Stuff to do after the frame.  Message: "postframe", delta time in seconds
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
-       */
-      void PostFrame(const double deltaSimTime, const double deltaRealTime);
-
-      void Pause(const double deltaRealTime);
-
-      ///Intenal helper that calls Producer::Camera::frame(bool doSwap)
-      ///with the proper value for doSwap.
-      void CameraFrame();
-
-      ///One System frame
-      void SystemStep();
    };
 }
 
