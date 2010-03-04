@@ -50,7 +50,10 @@ DeltaWin::DeltaWin(const DeltaWinTraits& windowTraits)
 
 {
    RegisterInstance(this);
-   CreateDeltaWindow(windowTraits);
+
+   // This shuts off the windowing support for Delta3D as we use
+   // VR Juggler for windowing support for DeltaJug.
+// CreateDeltaWindow(windowTraits);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -80,7 +83,9 @@ DeltaWin::DeltaWin(const std::string& name,
    deltaTraits.inheritedWindowData = inheritedWindowData;
    deltaTraits.contextToShare = NULL;
 
-   CreateDeltaWindow(deltaTraits);
+   // This shuts off the windowing support for Delta3D as we use
+   // VR Juggler for windowing support for DeltaJug.
+// CreateDeltaWindow(windowTraits);
 
    DEPRECATE("DeltaWin::DeltaWin(const std::string& name, "
              "int x, int y, "
