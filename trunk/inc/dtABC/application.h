@@ -228,6 +228,9 @@ namespace dtABC
       /// @return the instance of the osgViewer::CompositeViewer
       osgViewer::CompositeViewer* GetCompositeViewer() { return mCompositeViewer.get(); }
 
+   	// Get the root node from the composite viewer
+   	osg::Group* GetRootNode();
+
    protected:
 
       virtual ~Application();
