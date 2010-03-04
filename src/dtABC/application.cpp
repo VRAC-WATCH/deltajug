@@ -18,6 +18,7 @@
  *
  * John K. Grant
  * Erik Johnson
+ * Christian Noon
  */
 
 #include <dtABC/application.h>
@@ -81,7 +82,7 @@ Application::Application(const std::string& configFilename, dtCore::DeltaWin* wi
    , mMouseListener(new dtCore::GenericMouseListener())
 {
    RegisterInstance(this);
-
+/*
    mKeyboardListener->SetPressedCallback (dtCore::GenericKeyboardListener::CallbackType     (this, &Application::KeyPressed));
    mKeyboardListener->SetReleasedCallback(dtCore::GenericKeyboardListener::CallbackType     (this, &Application::KeyReleased));
    mMouseListener->SetPressedCallback    (dtCore::GenericMouseListener::ButtonCallbackType  (this, &Application::MouseButtonPressed));
@@ -90,7 +91,7 @@ Application::Application(const std::string& configFilename, dtCore::DeltaWin* wi
    mMouseListener->SetMovedCallback      (dtCore::GenericMouseListener::MovementCallbackType(this, &Application::MouseMoved));
    mMouseListener->SetDraggedCallback    (dtCore::GenericMouseListener::MovementCallbackType(this, &Application::MouseDragged));
    mMouseListener->SetScrolledCallback   (dtCore::GenericMouseListener::WheelCallbackType   (this, &Application::MouseScrolled));
-
+*/
    mWindow = win;
 
    ApplicationConfigHandler handler;
@@ -186,6 +187,8 @@ Application::~Application()
 ///////////////////////////////////////////////////////////////////////////////
 void Application::Run()
 {
+   // You should never use this method in a VR Juggler application. You
+   // MUST use the system calls for manually controlling the run loop.
    dtCore::System::GetInstance().Run();
 }
 
@@ -221,8 +224,11 @@ void Application::Frame(const double deltaSimTime)
       // The time delta will be ignored here and the absolute simulation
       // time passed to the OSG scene updater.
       mCompositeViewer->advance(dtCore::System::GetInstance().GetSimTimeSinceStartup());
-      mCompositeViewer->updateTraversal();
-      mCompositeViewer->renderingTraversals();
+
+      // Not completely sure yet whether or not I need to do the updateTraversals here.
+      // Should not need to in a Juggler application.
+//      mCompositeViewer->updateTraversal();
+//      mCompositeViewer->renderingTraversals();
    }
 }
 
@@ -326,7 +332,7 @@ void Application::CreateInstances(const std::string& name, int x, int y, int wid
       mWindow = new dtCore::DeltaWin(traits);
    }
 
-   GetCamera()->SetWindow(mWindow.get());
+//   GetCamera()->SetWindow(mWindow.get());
 
    mCompositeViewer = new osgViewer::CompositeViewer;
    //mCompositeViewer->setThreadingModel(osgViewer::CompositeViewer::DrawThreadPerContext);
@@ -338,8 +344,8 @@ void Application::CreateInstances(const std::string& name, int x, int y, int wid
    //when the Escape key is pressed.
    GetCompositeViewer()->setKeyEventSetsDone(0);
 
-   GetKeyboard()->AddKeyboardListener(mKeyboardListener.get());
-   GetMouse()->AddMouseListener(mMouseListener.get());
+//   GetKeyboard()->AddKeyboardListener(mKeyboardListener.get());
+//   GetMouse()->AddMouseListener(mMouseListener.get());
 
    mStats = new dtCore::StatsHandler(*mCompositeViewer);
 }
