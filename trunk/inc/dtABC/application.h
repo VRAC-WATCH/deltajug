@@ -16,6 +16,7 @@
  * along with this library; if not, write to the Free Software Foundation, Inc.,
  * 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
  *
+ * Christian Noon
  */
 
 #ifndef DELTA_APPLICATION
@@ -266,9 +267,8 @@ namespace dtABC
        * This is virtual so a subclass can add new properties.
        */
       virtual void ReadSystemProperties();
-   private:
 
-
+   private:
       ///private method to remove a view. Must *not* be called during event traversal.
       void RemoveViewImpl(dtCore::View& view);
  
@@ -285,7 +285,6 @@ namespace dtABC
       ViewList mViewsToDelete; ///<list of Views to be removed at the end of the frame
 
    };
-
 }
 
 #endif // DELTA_APPLICATION
