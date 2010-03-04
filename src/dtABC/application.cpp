@@ -185,6 +185,17 @@ Application::~Application()
 }
 
 ///////////////////////////////////////////////////////////////////////////////
+osg::Group* Application::GetRootNode()
+{
+   // Returns the scene data osg::Node* from the default view.
+   // This is always a safe call because the baseclass always
+   // creates the default view in the constructor
+   osgViewer::ViewerBase::Views views;
+	mCompositeViewer->getViews(views);
+	return dynamic_cast<osg::Group*> (views[0]->getSceneData());
+}
+
+///////////////////////////////////////////////////////////////////////////////
 void Application::Run()
 {
    // You should never use this method in a VR Juggler application. You
