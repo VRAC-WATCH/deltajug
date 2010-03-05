@@ -337,48 +337,26 @@ namespace dtCore
 		// the scene and rendering the next frame
 		void CalculateSimDeltas();
 
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
 		void EventTraversal();
 
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
 		void PostEventTraversal();
 
       /**
-      * Stuff to do before the frame. Message: "preframe", delta real and time in seconds
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
+      * Stuff to do before the frame. Message: "preframe"
       */
 		void PreFrame();
 
-      /**
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
-       */
 		void FrameSynch();
 
-      /**
-      * @param deltaSimTime The change in simulation time is seconds.
-      * @param deltaRealTime The change in real time in seconds.
-      */
 		void CameraSynch();
 
       /**
-       * Render the Camera, etc.  Message: "frame", delta time in seconds
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
+       * Render the Camera, etc.  Message: "frame"
        */
 		void Frame();
 
       /**
-       * Stuff to do after the frame.  Message: "postframe", delta time in seconds
-       * @param deltaSimTime The change in simulation time is seconds.
-       * @param deltaRealTime The change in real time in seconds.
+       * Stuff to do after the frame.  Message: "postframe"
        */
 		void PostFrame();
 
@@ -389,8 +367,15 @@ namespace dtCore
       // with the proper value for doSwap.
       void CameraFrame();
 
-      // One System frame
+      /**
+       * One System frame
+       */
       void SystemStep();
+
+      /**
+       * Convenience method for latePreFrame of a VR Juggler application
+       */
+      void LatePreFrame();
 
    private:
 
