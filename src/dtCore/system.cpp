@@ -651,6 +651,17 @@ namespace dtCore
    }
 
    ////////////////////////////////////////////////////////////////////////////////
+   void System::LatePreFrame()
+   {
+      CalculateSimDeltas();
+      EventTraversal();
+      PostEventTraversal();
+      PreFrame();
+      CameraSynch();
+      FrameSynch();
+   }
+
+   ////////////////////////////////////////////////////////////////////////////////
    void System::Config()
    {
       if (dtUtil::Bits::Has(mSystemStages, System::STAGE_CONFIG))
