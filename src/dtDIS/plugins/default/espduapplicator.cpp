@@ -41,6 +41,8 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
       strAP->SetValue(source.getMarking().getCharacters());
    }
 
+   source.getEntityType();
+   //LCR: "Non-damaged actor" (aka RESOURCE_DAMAGE_OFF) property is set to the mesh specified in disActorTypeMapping.xml file
    mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH );
    if( mp != NULL )
    {
@@ -49,6 +51,25 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
          const ResourceMapConfig& resources = config->GetResourceMap();
          const dtDAL::ResourceDescriptor* rdPtr = NULL;
          bool found = resources.GetMappedResource( source.getEntityType(), rdPtr ) ;
+
+         //LCR: Use DIS Enum (0,0,0,0,0,0,0) for a default mapping to an random object of some sort
+         //Obviously for this to work the mapping must be in the mapping file and the mapped Mesh must available
+         if(!found ) 
+         {
+
+           DIS::EntityType defaultType;
+           defaultType.setCategory(0);
+           defaultType.setCountry(0);
+           defaultType.setDomain(0);
+           defaultType.setEntityKind(0);
+           defaultType.setExtra(0);
+           defaultType.setSpecific(0);
+           defaultType.setSubcategory(0);
+
+           found = resources.GetMappedResource( defaultType, rdPtr ) ;
+         }
+         //LCR
+
          if( found )
          {
             dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>( mp );
@@ -118,7 +139,7 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
       osg::Vec3 val = v3mp->GetValue();
       if (config != NULL)
       {
-         val = config->GetCoordinateConverter().ConvertToRemoteTranslation(val);
+         val = config->GetCoordinateConverter().ConvertToRemoteTranslation(val);        
       }
 
       DIS::Vector3Double loc;
@@ -209,7 +230,13 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
 
    // position //
    const DIS::Vector3Double& pos = source.getEntityLocation() ;
-   osg::Vec3 v3(pos.getX(), pos.getY(), pos.getZ());
+   osg::Vec3d v3(pos.getX(), pos.getY(), pos.getZ());
+
+   //LCR: DIS debugging
+   //char buffer[128];
+   //sprintf(buffer, "DIS xyz: %f, %f, %f", pos.getX(), pos.getY(), pos.getZ());
+   //LOG_INFO(buffer);
+   //LCR
 
    if (config != NULL)
    {
@@ -253,11 +280,24 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
    // dtDIS Actor Property Name
    if ((mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::ENTITY_LINEARY_VELOCITY, dtDAL::DataType::VEC3 )))
    {
-      //TODO convert to local coordinate system?
-      const DIS::Vector3Float& lv = source.getEntityLinearVelocity();
-      osg::Vec3 vel(lv.getX(), lv.getY(), lv.getZ());
-      dtDAL::NamedVec3Parameter* v3mp = static_cast<dtDAL::NamedVec3Parameter*>(mp);
-      v3mp->SetValue(vel);
+
+       //LCR: convert velocity from GCC to local coordinates
+       // There is probably a better way to do this! 
+       //(probably involving a simple rotation of the vector)
+       const DIS::Vector3Float&  velGcc = source.getEntityLinearVelocity();
+       const DIS::Vector3Double& posGcc = source.getEntityLocation();
+
+       osg::Vec3d u3(posGcc.getX() + velGcc.getX(), 
+                     posGcc.getY() + velGcc.getY(),
+                     posGcc.getZ() + velGcc.getZ());
+
+       if (config != NULL)
+       {
+           u3 = config->GetCoordinateConverter().ConvertToLocalTranslation(u3);
+           dtDAL::NamedVec3Parameter* v3mp = static_cast<dtDAL::NamedVec3Parameter*>(mp);
+           v3mp->SetValue(u3 - v3);
+       }
+       //LCR
    }
 
 
