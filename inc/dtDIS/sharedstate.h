@@ -157,8 +157,14 @@ namespace dtDIS
       ActorMapConfig& GetActorMap();
       const ActorMapConfig& GetActorMap() const;
 
-      ResourceMapConfig& GetResourceMap();
-      const ResourceMapConfig& GetResourceMap() const;
+	  ResourceMapConfig& GetHealthyResourceMap();
+	  const ResourceMapConfig& GetHealthyResourceMap() const;
+
+	  ResourceMapConfig& GetDamagedResourceMap();
+	  const ResourceMapConfig& GetDamagedResourceMap() const;
+
+	  ResourceMapConfig& GetDestroyedResourceMap();
+	  const ResourceMapConfig& GetDestroyedResourceMap() const;
 
       ActiveEntityControl& GetActiveEntityControl();
       const ActiveEntityControl& GetActiveEntityControl() const;
@@ -178,8 +184,11 @@ namespace dtDIS
 
    private:
       ActorMapConfig mActorMapConfig;
-      ResourceMapConfig mResourceMapConfig;
-      ActiveEntityControl mActiveEntityControl;
+      ResourceMapConfig mHealthyResourceMap;
+	  ResourceMapConfig mDamagedResourceMap;
+	  ResourceMapConfig mDestroyedResourceMap;
+	  	  
+	  ActiveEntityControl mActiveEntityControl;
       ConnectionData mConnectionData;
       unsigned short mSiteID;       ///<For outgoing DIS packets
       unsigned short mApplicationID;///<For outgoing DIS packets

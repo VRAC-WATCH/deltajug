@@ -202,7 +202,9 @@ const char details::XMLEntityMapSchema::NODE_ACTORDATA_ACTORTYPE[] = {"ActorType
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_ACTORTYPE_NAME[] = {"Name\0"};
 
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE[] = {"Resource\0"};
-const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESCRIPTOR[] = {"Descriptor\0"};
+const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_HEALTHY[] = {"Healthy\0"};
+const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DAMAGED[] = {"Damaged\0"};
+const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESTROYED[] = {"Destroyed\0"};
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ACTORPROPERTY[] = {"ActorProperty\0"};
 
 const char details::XMLEntityMapSchema::ATTRIBUTE_RESOURCE_GROUP[] = {"Group\0"};
@@ -223,6 +225,9 @@ const char details::XMLEntityMapSchema::NODE_ENTITY_DESTROYED[] = {"EntityDestro
 EntityMapXMLHandler::EntityMapXMLHandler(SharedState* config)
    : mSharedState(config)
    , mNodeStack()
+   , mCurrentResourceHealthy()
+   , mCurrentResourceDamaged()
+   , mCurrentResourceDestroyed()
 {
 }
 
@@ -306,10 +311,22 @@ void EntityMapXMLHandler::characters(const XMLCh* const chars, const unsigned in
       {
       } break;
 
-   case ACTORDATA_RESOURCE_DESCRIPTOR:
+   case ACTORDATA_RESOURCE_HEALTHY:
       {
-         mCurrentResourceIdentifier = cstr;
+         mCurrentResourceHealthy = cstr;
       } break;
+
+   case ACTORDATA_RESOURCE_DAMAGED:
+	   {
+		   mCurrentResourceDamaged = cstr;
+	   }
+	   break;
+
+   case ACTORDATA_RESOURCE_DESTROYED:
+	   {
+		   mCurrentResourceDestroyed = cstr;
+	   }
+	   break;
 
    case ACTORDATA_RESOURCE_ACTORPROPERTY:
       {
@@ -386,15 +403,41 @@ void EntityMapXMLHandler::endElement(const XMLCh* const uri,const XMLCh* const l
    case ACTORDATA_RESOURCE:
       {
          // modify the resource mapping
-         dtDAL::ResourceDescriptor descriptor( mCurrentResourceIdentifier );
+         dtDAL::ResourceDescriptor healthyDescriptor(mCurrentResourceHealthy);
+         ResourceMapConfig& healthyMap = mSharedState->GetHealthyResourceMap();
 
-         ResourceMapConfig& rmapper = mSharedState->GetResourceMap();
-         if( !rmapper.AddResourceMapping( mCurrentEntityType, descriptor ) )
+         if(!healthyMap.AddResourceMapping(mCurrentEntityType, healthyDescriptor))
          {
-            LOG_ERROR("DIS Entity was not mapped for resource with identifier: " + mCurrentResourceIdentifier )
+            LOG_ERROR("DIS Entity was not mapped for HEALTHY resource with identifier: " + mCurrentResourceHealthy)
          }
 
-         mCurrentResourceIdentifier.clear();
+		if (!mCurrentResourceDamaged.empty())
+		{
+			// modify the resource mapping
+			dtDAL::ResourceDescriptor damagedDescriptor(mCurrentResourceDamaged);
+			ResourceMapConfig& damagedMap = mSharedState->GetDamagedResourceMap();
+
+	        if(!damagedMap.AddResourceMapping(mCurrentEntityType, damagedDescriptor))
+		    {
+			    LOG_ERROR("DIS Entity was not mapped for DAMAGED resource with identifier: " + mCurrentResourceDamaged)
+			}
+		}
+
+		if (!mCurrentResourceDestroyed.empty())
+		{
+			// modify the resource mapping
+			dtDAL::ResourceDescriptor destroyedDescriptor(mCurrentResourceDestroyed);
+			ResourceMapConfig& destroyedMap = mSharedState->GetDestroyedResourceMap();
+
+			if(!destroyedMap.AddResourceMapping(mCurrentEntityType, destroyedDescriptor))
+			{
+				LOG_ERROR("DIS Entity was not mapped for DESTROYED resource with identifier: " + mCurrentResourceDestroyed)
+			}
+		}
+
+         mCurrentResourceHealthy.clear();
+		 mCurrentResourceDamaged.clear();
+		 mCurrentResourceDestroyed.clear();
       } 
       break;
 
@@ -460,9 +503,17 @@ void EntityMapXMLHandler::startElement(const XMLCh* const uri,const XMLCh* const
    {
       mNodeStack.push( ACTORDATA_RESOURCE );
    }
-   else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESCRIPTOR) )
+   else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_HEALTHY) )
    {
-      mNodeStack.push( ACTORDATA_RESOURCE_DESCRIPTOR );
+      mNodeStack.push( ACTORDATA_RESOURCE_HEALTHY );
+   }
+   else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DAMAGED) )
+   {
+      mNodeStack.push( ACTORDATA_RESOURCE_DAMAGED );
+   }
+   else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESTROYED) )
+   {
+      mNodeStack.push( ACTORDATA_RESOURCE_DESTROYED );
    }
    else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ACTORPROPERTY) )
    {
@@ -557,7 +608,7 @@ void EntityMapXMLHandler::startElement(const XMLCh* const uri,const XMLCh* const
    }
    else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ENTITY_NON_DAMAGED) )
    {
-      mNodeStack.push( ENTITY_NON_DAMAGED );
+	  mNodeStack.push( ENTITY_NON_DAMAGED );
    }
    else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ENTITY_DAMAGED) )
    {

@@ -61,7 +61,9 @@ bool ResourceMapConfig::GetMappedResource(const DIS::EntityType& eid, const dtDA
 SharedState::SharedState(const std::string& connectionXMLFile,
                          const std::string& entityMappingXMLFile)
    : mActorMapConfig()
-   , mResourceMapConfig()
+   , mHealthyResourceMap()
+   , mDamagedResourceMap()
+   , mDestroyedResourceMap()
    , mActiveEntityControl()
    , mConnectionData()
    , mSiteID(1)
@@ -99,14 +101,34 @@ const ActorMapConfig& SharedState::GetActorMap() const
    return mActorMapConfig;
 }
 
-ResourceMapConfig& SharedState::GetResourceMap()
+ResourceMapConfig& SharedState::GetHealthyResourceMap()
 {
-   return mResourceMapConfig;
+   return mHealthyResourceMap;
 }
 
-const ResourceMapConfig& SharedState::GetResourceMap() const
+const ResourceMapConfig& SharedState::GetHealthyResourceMap() const
 {
-   return mResourceMapConfig;
+   return mHealthyResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetDamagedResourceMap()
+{
+   return mDamagedResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetDamagedResourceMap() const
+{
+   return mDamagedResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetDestroyedResourceMap()
+{
+   return mDestroyedResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetDestroyedResourceMap() const
+{
+   return mDestroyedResourceMap;
 }
 
 ActiveEntityControl& SharedState::GetActiveEntityControl()
