@@ -42,23 +42,21 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
    }
 
 
-   mp = dest.AddUpdateParameter(dtDIS::EntityPropertyName::APPEARANCE, dtDAL::DataType::INT);
-   if (mp != NULL)
-   {
-      dtDAL::NamedIntParameter* appearanceParam = static_cast<dtDAL::NamedIntParameter*>(mp);      
-      appearanceParam->SetValue(source.getEntityAppearance());
-   }
+   
 
    source.getEntityType();
+   
+   // Keep the undamaged model around...
+   const dtDAL::ResourceDescriptor* undamagedResource = NULL;
+   
    //LCR: "Non-damaged actor" (aka RESOURCE_DAMAGE_OFF) property is set to the mesh specified in disActorTypeMapping.xml file
    mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH );
    if( mp != NULL )
    {
       if (config != NULL)
       {
-         const ResourceMapConfig& resources = config->GetResourceMap();
-         const dtDAL::ResourceDescriptor* rdPtr = NULL;
-         bool found = resources.GetMappedResource( source.getEntityType(), rdPtr ) ;
+		  const ResourceMapConfig& resources = config->GetHealthyResourceMap();
+		bool found = resources.GetMappedResource( source.getEntityType(), undamagedResource ) ;
 
          //LCR: Use DIS Enum (0,0,0,0,0,0,0) for a default mapping to an random object of some sort
          //Obviously for this to work the mapping must be in the mapping file and the mapped Mesh must available
@@ -74,15 +72,71 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
            defaultType.setSpecific(0);
            defaultType.setSubcategory(0);
 
-           found = resources.GetMappedResource( defaultType, rdPtr ) ;
+           found = resources.GetMappedResource( defaultType, undamagedResource) ;
          }
          //LCR
 
          if( found )
          {
             dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>( mp );
-            nrp->SetValue( rdPtr );
+            nrp->SetValue(undamagedResource);
          }
+      }
+   }
+
+   // Add damaged model
+    mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_ON , dtDAL::DataType::STATIC_MESH );
+	
+	if (mp != NULL)
+    {
+       if (config != NULL)
+       {
+		  const ResourceMapConfig& resources = config->GetDamagedResourceMap();
+		  const dtDAL::ResourceDescriptor* rdPtr = NULL;
+          bool found = resources.GetMappedResource(source.getEntityType(), rdPtr);
+
+	      if(found)
+          {
+			dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>(mp);
+            nrp->SetValue(rdPtr);
+          }
+		  // This entity type does not have a damaged model, so just use the undamaged model
+		  else
+		  {
+			  if (undamagedResource)
+			  {
+				  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(mp);
+				  parameter->SetValue(undamagedResource);
+			  }
+		  }
+      }
+   }
+
+   // Add destroyed model
+	mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_DESTROYED , dtDAL::DataType::STATIC_MESH );
+	
+	if (mp != NULL)
+    {
+       if (config != NULL)
+       {
+		  const ResourceMapConfig& resources = config->GetDestroyedResourceMap();
+		  const dtDAL::ResourceDescriptor* rdPtr = NULL;
+          bool found = resources.GetMappedResource(source.getEntityType(), rdPtr);
+
+	      if(found)
+          {
+			dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>(mp);
+            nrp->SetValue(rdPtr);
+          }
+		  // This entity type does not have a damaged model, so just use the undamaged model
+		  else
+		  {
+			  if (undamagedResource)
+			  {
+				  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(mp);
+				  parameter->SetValue(undamagedResource);
+			  }
+		  }
       }
    }
 
@@ -310,6 +364,12 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
        //LCR
    }
 
+   mp = dest.AddUpdateParameter(dtDIS::EntityPropertyName::APPEARANCE, dtDAL::DataType::INT);
+   if (mp != NULL)
+   {
+	   dtDAL::NamedIntParameter* appearanceParam = static_cast<dtDAL::NamedIntParameter*>(mp);      
+      appearanceParam->SetValue(source.getEntityAppearance());
+   }
 
 #if 0
    UpdateAcceleration( vel ) ;

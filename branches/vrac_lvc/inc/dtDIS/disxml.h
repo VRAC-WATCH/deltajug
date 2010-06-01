@@ -138,7 +138,9 @@ namespace dtDIS
 
       static const char NODE_ACTORDATA_RESOURCE[];
       static const char NODE_ACTORDATA_RESOURCE_ACTORPROPERTY[];
-      static const char NODE_ACTORDATA_RESOURCE_DESCRIPTOR[];
+      static const char NODE_ACTORDATA_RESOURCE_HEALTHY[];
+	  static const char NODE_ACTORDATA_RESOURCE_DAMAGED[];
+	  static const char NODE_ACTORDATA_RESOURCE_DESTROYED[];
 
       static const char ATTRIBUTE_RESOURCE_RENDERSUITE[];
       static const char ATTRIBUTE_RESOURCE_GROUP[];
@@ -200,7 +202,9 @@ namespace dtDIS
          ACTORDATA_ACTORTYPE_NAME,
          ACTORDATA_ACTORTYPE_CATEGORY,
          ACTORDATA_RESOURCE,
-         ACTORDATA_RESOURCE_DESCRIPTOR,
+         ACTORDATA_RESOURCE_HEALTHY,
+		 ACTORDATA_RESOURCE_DAMAGED,
+		 ACTORDATA_RESOURCE_DESTROYED,
          ACTORDATA_RESOURCE_ACTORPROPERTY,
          PROPERTY_NAMES,
          ENTITY_LOCATION,
@@ -222,7 +226,9 @@ namespace dtDIS
 
       std::string mCurrentActorTypeName;
       std::string mCurrentActorTypeCategory;
-      std::string mCurrentResourceIdentifier;
+      std::string mCurrentResourceHealthy;
+	  std::string mCurrentResourceDamaged;
+	  std::string mCurrentResourceDestroyed;
    };
 }
 
