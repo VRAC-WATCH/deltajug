@@ -7,7 +7,38 @@
 
 using namespace dtDIS;
 
+bool ActorUpdateConfig::Update(const dtCore::UniqueId& entityID, double updateTime) {
+	mMap[entityID] = updateTime;
+	return true;
+}
 
+bool ActorUpdateConfig::Remove(const dtCore::UniqueId& entityId) {
+	ActorUpdateMap::iterator itr = mMap.find(entityId);
+
+	if (itr != mMap.end()) {
+		mMap.erase(itr);
+		return true;
+	}
+
+	return false;
+}
+
+std::vector<dtCore::UniqueId> ActorUpdateConfig::GetTimedOutActors(double currentTime, double timeOut) {
+	std::vector<dtCore::UniqueId> timedOutEntities;
+	ActorUpdateMap::iterator itr = mMap.begin();
+
+	while (itr != mMap.end())
+	{
+		if (currentTime > (itr->second + timeOut))
+		{
+			timedOutEntities.push_back(itr->first);
+		}
+		
+		++itr;
+	}
+
+	return timedOutEntities;
+}
 
 bool ActorMapConfig::AddActorMapping(const DIS::EntityType& eid, const dtDAL::ActorType* at)
 {
@@ -89,6 +120,14 @@ SharedState::SharedState(const std::string& connectionXMLFile,
 
 SharedState::~SharedState()
 {
+}
+
+ActorUpdateConfig& SharedState::GetActorUpdateMap() {
+	return mActorUpdateConfig;
+}
+
+const ActorUpdateConfig& SharedState::GetActorUpdateMap() const {
+	return mActorUpdateConfig;
 }
 
 ActorMapConfig& SharedState::GetActorMap()

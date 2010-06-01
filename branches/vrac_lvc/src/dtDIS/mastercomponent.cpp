@@ -14,6 +14,9 @@
 
 using namespace dtDIS;
 
+const double MasterComponent::TIME_OUT_CHECK_INTERVAL = 3.0;
+const double MasterComponent::TIME_OUT_LIMIT = 15.0;
+
 ///\todo what should set the network stream's endian type?  the SharedState's connection data?
 MasterComponent::MasterComponent(SharedState* config)
    : dtGame::GMComponent("dtDIS_MasterComponent")
@@ -23,6 +26,7 @@ MasterComponent::MasterComponent(SharedState* config)
    , mOutgoingMessage(DIS::BIG, config->GetConnectionData().exercise_id )
    , mConfig( config )
    , mDefaultPlugin(new dtDIS::DefaultPlugin())
+   , mTimeOutDelta(0.0)
 {
    // add support for the network packets
    LoadPlugins( mConfig->GetConnectionData().plug_dir );
@@ -118,6 +122,34 @@ void MasterComponent::OnPluginUnloaded(PluginManager::LibraryRegistry::value_typ
    entry.second.mCreated->Finish( mIncomingMessage, mOutgoingMessage );
 }
 
+void MasterComponent::CheckForDefunctEntities() {
+	double time = this->GetGameManager()->GetSimulationTime();
+	mTimeOutDelta += time;
+
+	// Don't check every tick...
+	if (mTimeOutDelta > TIME_OUT_CHECK_INTERVAL) {
+		mTimeOutDelta = 0.0;
+
+		// Check to see if there are any timeout connections
+		double time = this->GetGameManager()->GetSimulationTime();
+		std::vector<dtCore::UniqueId> timedOutList = mConfig->GetActorUpdateMap().GetTimedOutActors(time, TIME_OUT_LIMIT);
+
+		if (!timedOutList.empty()) {
+
+		   for (size_t i = 0; i < timedOutList.size(); ++i) {
+			   dtDAL::ActorProxy* proxy = this->GetGameManager()->FindActorById(timedOutList[i]);
+			   
+			   if (proxy) {
+ 					// SB TODO - maybe see if we can tie this in with the delete
+				    // call
+				   mConfig->GetActorUpdateMap().Remove(timedOutList[i]);
+					this->GetGameManager()->DeleteActor(*proxy);
+			   }
+		   }
+	   }
+	}
+}
+
 ///\todo should it handle a pause message, by not updating the incoming or outgoing network classes?
 void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 {
@@ -162,6 +194,9 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 
    if( mt == dtGame::MessageType::TICK_LOCAL )
    {
+	    // Remove entities that are no logner active
+		this->CheckForDefunctEntities();
+
       // read the incoming packets
       const unsigned int MTU = 1500;
       char buffer[MTU];
