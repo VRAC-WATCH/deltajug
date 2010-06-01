@@ -4,7 +4,7 @@ Dignitas Technologies, LLC
 
 #include <dtDIS/plugins/default/detonationpduprocessor.h>
 
-#include <dtDIS/DetonationMessage.h>
+#include <dtDIS/detonationmessage.h>
 #include <dtDIS/sharedstate.h>
 #include <dtGame/gamemanager.h>
 #include <dtGame/actorupdatemessage.h>

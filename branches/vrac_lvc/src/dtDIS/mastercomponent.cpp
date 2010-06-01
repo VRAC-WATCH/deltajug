@@ -1,6 +1,6 @@
 #include <dtDIS/mastercomponent.h>
 #include <dtDIS/sharedstate.h>
-#include <dtDIS/DetonationMessage.h>
+#include <dtDIS/detonationmessage.h>
 
 #include <DIS/PDUType.h>
 
