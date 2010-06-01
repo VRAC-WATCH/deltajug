@@ -12,10 +12,11 @@
 #include <DIS/PDUType.h>
 
 #include <cstddef>
-#include <dtDIS/plugins/default/espduprocessor.h>     // for member
-#include <dtDIS/plugins/default/createentityprocessor.h>     // for member
-#include <dtDIS/plugins/default/removeentityprocessor.h>     // for member
-#include <dtDIS/plugins/default/actorupdatetoentitystate.h>  // for member
+#include <dtDIS/plugins/default/firepduprocessor.h>
+#include <dtDIS/plugins/default/espduprocessor.h>  
+#include <dtDIS/plugins/default/createentityprocessor.h>   
+#include <dtDIS/plugins/default/removeentityprocessor.h>   
+#include <dtDIS/plugins/default/actorupdatetoentitystate.h>
 
 using namespace dtDIS;
 
@@ -24,6 +25,7 @@ DefaultPlugin::DefaultPlugin()
    , mCreateProcessor( NULL )
    , mRemoveProcessor( NULL )
    , mSendingAdapter( NULL )
+   , mFireProcessor( NULL )
 {
 }
 
@@ -36,11 +38,13 @@ void DefaultPlugin::Start(DIS::IncomingMessage& imsg,
                                  dtGame::GameManager* gm,
                                  dtDIS::SharedState* config)
 {
+   mFireProcessor = new FirePduProcessor(gm, config);
    mESProcessor = new ESPduProcessor(gm, config);
    mCreateProcessor = new CreateEntityProcessor( &omsg, config);
    mRemoveProcessor = new RemoveEntityProcessor( &omsg, config);
    mSendingAdapter = new ActorUpdateToEntityState( config, gm );
 
+   imsg.AddProcessor( DIS::PDU_FIRE        , mFireProcessor);
    imsg.AddProcessor( DIS::PDU_ENTITY_STATE, mESProcessor );
    imsg.AddProcessor( DIS::PDU_CREATE_ENTITY, mCreateProcessor );
    imsg.AddProcessor( DIS::PDU_REMOVE_ENTITY, mRemoveProcessor );
