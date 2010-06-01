@@ -27,6 +27,7 @@
 
 namespace dtDIS
 {
+   class FirePduProcessor;
    class ESPduProcessor;
    class CreateEntityProcessor;
    class RemoveEntityProcessor;
@@ -52,6 +53,7 @@ namespace dtDIS
       ///\todo inform the sending adapter of the new actors or modify the ActiveEntityControl.
       void OnActorAdded(dtGame::GameActorProxy* actor);
 
+      FirePduProcessor* mFireProcessor;
       ESPduProcessor* mESProcessor;
       CreateEntityProcessor* mCreateProcessor;
       RemoveEntityProcessor* mRemoveProcessor;
