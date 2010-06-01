@@ -32,10 +32,15 @@ void Connection::Connect(unsigned int port, const char* host)
 
    nlSetAddrPort(&maddr, port);
 
-   nlHint(NL_MULTICAST_TTL, NL_TTL_LOCAL);
+   //LCR: (mods to nlHint)
+   //nlHint(NL_MULTICAST_TTL, NL_TTL_LOCAL);
    nlHint(NL_REUSE_ADDRESS, NL_TRUE);
+   //LCR
 
-   mSocket = nlOpen(port, NL_UDP_MULTICAST);
+   //LCR: (mods to nlOpen)
+   //mSocket = nlOpen(port, NL_UDP_MULTICAST);
+   mSocket = nlOpen(port, NL_UDP_BROADCAST);
+   //LCR
 
    if(mSocket == NL_INVALID)
    {
@@ -45,8 +50,32 @@ void Connection::Connect(unsigned int port, const char* host)
       LOG_ERROR( strm.str() )
    }
 
+   /*
+   //LCR: (no need to call nlConnect for broadcast!)
    if(nlConnect(mSocket, &maddr) == NL_FALSE)
    {
+	   switch(nlGetError()) {
+
+	   case NL_INVALID_SOCKET:
+			LOG_ERROR("NL_INVALID_SOCKET");
+			break;
+	   case NL_NULL_POINTER:
+		   LOG_ERROR("NL_NULL_POINTER");
+			break;
+	   case NL_SYSTEM_ERROR:
+		   LOG_ERROR("NL_SYSTEM_ERROR");
+			break;
+	   case NL_CON_REFUSED:
+		   LOG_ERROR("NL_CON_REFUSED");
+			break;
+	   case NL_WRONG_TYPE:
+		   LOG_ERROR("NL_WRONG_TYPE");            //broadcast
+			break;
+	   default:
+		   LOG_ERROR("nlGetError was no help!");  //multicast 
+		   break;
+	   }
+
       nlClose(mSocket);
 
       std::ostringstream strm;
@@ -54,7 +83,10 @@ void Connection::Connect(unsigned int port, const char* host)
            << ". System: " << nlGetSystemErrorStr(nlGetSystemError());
       LOG_ERROR( strm.str() );
    }
+   */
 }
+
+
 
 ///\todo is this the ideal NL call?
 void Connection::Disconnect()
