@@ -112,7 +112,14 @@ namespace dtGame
          }
          else
          {
-            LOG_DEBUG("The default message component is processing an unhandled local message");
+             //LCR: Avoid swamping the debug output
+            static unsigned int unhandledMessageCount = 0;
+
+            if ( unhandledMessageCount++ < 10 || unhandledMessageCount % 1000 == 0 ) {
+                char buf[128];
+                sprintf(buf, "Default message processor has processed %i unhandled local messages", unhandledMessageCount);
+                LOG_DEBUG(buf);
+            }
             ProcessUnhandledLocalMessage(msg);
          }
       }
