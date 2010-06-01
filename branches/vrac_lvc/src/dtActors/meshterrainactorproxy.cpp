@@ -100,7 +100,7 @@ namespace dtActors
    }
 
    //////////////////////////////////////////////////////////////////////////
-   MeshTerrainActor::MeshTerrainActor()
+   MeshTerrainActor::MeshTerrainActor() : Object("TerrainNode")
    {
    }
 
