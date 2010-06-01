@@ -192,50 +192,76 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
       dest.setMarking(marking);
    }
 
-
+   // These will be used later, right now assuming that they work
+   osg::Vec3 gameTranslation;
+   osg::Vec3 disTranslation;
+   
    // --- support the engine-core properties. --- //
    if (const dtGame::MessageParameter* mp = source.GetUpdateParameter(EnginePropertyName::ENTITY_LOCATION))
    {
       // DIS EntityState actor property
       const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
-      osg::Vec3 val = v3mp->GetValue();
-      if (config != NULL)
+      gameTranslation = v3mp->GetValue();
+      
+	  if (config != NULL)
       {
-         val = config->GetCoordinateConverter().ConvertToRemoteTranslation(val);        
+         disTranslation = config->GetCoordinateConverter().ConvertToRemoteTranslation(gameTranslation);        
       }
 
-      DIS::Vector3Double loc;
-      loc.setX(val[0]);
-      loc.setY(val[1]);
-      loc.setZ(val[2]);
-      dest.setEntityLocation(loc);
+		DIS::Vector3Double disPoint;
+      disPoint.setX(disTranslation[0]);
+      disPoint.setY(disTranslation[1]);
+      disPoint.setZ(disTranslation[2]);
+      dest.setEntityLocation(disPoint);
    }
 
+   // Convert orientation from game matrix orientation to DIS euler angles...
    if (const dtGame::MessageParameter* mp = source.GetUpdateParameter(dtDIS::EnginePropertyName::ENTITY_ORIENTATION)) 
    {
-      // DIS EntityState actor property
-      //LCR: TODO: Must convert to DIS Euler angles
-      const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
-      const osg::Vec3& val = v3mp->GetValue();
-      DIS::Orientation orie;
-      orie.setPhi(osg::DegreesToRadians(val[0])); //pitch
-      orie.setTheta(osg::DegreesToRadians(val[1])); //roll
-      orie.setPsi(osg::DegreesToRadians(val[2])); //heading
-      dest.setEntityOrientation(orie);
+	   const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
+	   const osg::Vec3& gameOrientation = v3mp->GetValue();
+	   
+	   // If we don't have config we should probably throw an exception, cause none of this is going to work
+	   if (config)
+	   {
+			// Convert to DIS rotation
+		   osg::Vec3d remoteRotation = config->GetCoordinateConverter().ConvertToRemoteRotation(gameOrientation);
+
+		   // These may have to be jimmied around, to receive we mapped 1-2-0...
+			float psi = remoteRotation[0]; 
+			float theta = remoteRotation[1]; 
+			float phi = remoteRotation[2];
+
+			DIS::Orientation disOrientation;
+			disOrientation.setPsi(psi);
+			disOrientation.setTheta(theta);
+			disOrientation.setPhi(phi);
+			dest.setEntityOrientation(disOrientation);
+	   }
    }
 
+   // Convert velocity vector from game coordinates to DIS coordinates
    if (const dtGame::MessageParameter* mp = source.GetUpdateParameter(dtDIS::EnginePropertyName::ENTITY_LINEARY_VELOCITY))
    {
-      // DIS EntityState actor property
-      //TODO convert to DIS coordinate system?
-      //LCR: TODO:  Must convert to DIS Coordinate System
-      const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
-      const osg::Vec3& val = v3mp->GetValue();
-      DIS::Vector3Float vel;
-      vel.setX(val[0]);
-      vel.setY(val[1]);
-      vel.setZ(val[2]);
-      dest.setEntityLinearVelocity(vel);
+		// To calculate this, we will need to add the game velocity vector to the game coordinate.
+	    // Then convert both of those to DIS coordinate space.  Then subtract...
+	   const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
+	   const osg::Vec3& gameVelocity = v3mp->GetValue();
+
+	   osg::Vec3 gameEndPoint = gameTranslation + gameVelocity;
+
+		if (config)
+		{
+			osg::Vec3 end = config->GetCoordinateConverter().ConvertToRemoteTranslation(gameEndPoint);
+			end -= disTranslation;
+
+			DIS::Vector3Float disVelocity;
+			disVelocity.setX(end[0]);
+			disVelocity.setY(end[1]);
+			disVelocity.setZ(end[2]);
+      
+			dest.setEntityLinearVelocity(disVelocity);
+		}
    }
 
    /// support the dead reckoning data
@@ -321,8 +347,8 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
    {
       const DIS::Orientation& orie = source.getEntityOrientation();
       const osg::Vec3 hpr = config->GetCoordinateConverter().ConvertToLocalRotation(orie.getPsi(), 
-                                                                                    orie.getTheta(), 
-                                                                                    orie.getPhi());
+                                                                                    orie.getTheta(),
+																					orie.getPhi());
       xyzRot[0] = hpr[0];
       xyzRot[1] = hpr[1];
       xyzRot[2] = hpr[2];
