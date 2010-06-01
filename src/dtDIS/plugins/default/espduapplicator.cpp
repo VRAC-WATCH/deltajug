@@ -227,7 +227,7 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
                                     dtDIS::SharedState* config) 
 {
    dtDAL::NamedParameter* mp ;
-
+   
    // position //
    const DIS::Vector3Double& pos = source.getEntityLocation() ;
    osg::Vec3d v3(pos.getX(), pos.getY(), pos.getZ());
@@ -404,11 +404,37 @@ void PartialApplicator::AddPartParameter(unsigned int partclass, dtDAL::NamedGro
 
 void PartialApplicator::AddMotionParameter(unsigned int motionclass, double motionvalue, dtDAL::NamedGroupParameter* parent) const
 {
+    //LCR: Crazy stuff going on with the articulated parameters!
+    //There appears to be a bug (or perhaps a version discrepancy)
+    //in the underlying DIS library.  Reference: ext/inc/DIS/ArticulationParameter.h
+    //basically their structure for receiving the ArticulatedParameters doesn't appear correct
+    //         Spec                      Spec                DIS Library
+    //---------------------------------------------------------------------------
+    //Parameter Type Designator Field     8                 char (correct)     
+    //Parameter Change Indicator Field    8                 char (correct)
+    //Articulation Attachment ID Field    16                unsignedshort (correct)
+    //Parameter Type Variant              64                int (sort of correct) -- missing a second int to make total of 64 bits
+    //Articulation Parameter Value Field  64                double (correct)
+
+    // 
+    //the "correct" value is in the second 32 bits of the passed in double motionvalue
+    float* pFloat                = (float*)&motionvalue;
+    float hackedFloatMotionValue = *(pFloat + 1);
+    //char buf[128];
+    //sprintf(buf, "PartialApplicator::AddMotionParameter: %f", motionvalue);
+    //LOG_INFO(buf);
+    //sprintf(buf, "hackedFloatMotionValue: %f", hackedFloatMotionValue);
+    //LOG_INFO(buf);    
+    //LCR
+
    // find the property to modify
    std::string propertyname;
    if( ValueMap::GetArticulationMotionPropertyName(motionclass, propertyname) )
    {
-      AddFloatParam( propertyname, motionvalue, parent);
+      //LCR: 
+      //AddFloatParam( propertyname, motionvalue, parent);
+      AddFloatParam( propertyname, hackedFloatMotionValue, parent);
+      //LCR
    }
    else
    {
