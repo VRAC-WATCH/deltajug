@@ -41,6 +41,14 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
       strAP->SetValue(source.getMarking().getCharacters());
    }
 
+
+   mp = dest.AddUpdateParameter(dtDIS::EntityPropertyName::APPEARANCE, dtDAL::DataType::INT);
+   if (mp != NULL)
+   {
+      dtDAL::NamedIntParameter* appearanceParam = static_cast<dtDAL::NamedIntParameter*>(mp);      
+      appearanceParam->SetValue(source.getEntityAppearance());
+   }
+
    source.getEntityType();
    //LCR: "Non-damaged actor" (aka RESOURCE_DAMAGE_OFF) property is set to the mesh specified in disActorTypeMapping.xml file
    mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH );
