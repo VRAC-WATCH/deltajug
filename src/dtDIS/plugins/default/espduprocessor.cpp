@@ -22,9 +22,13 @@ ESPduProcessor::~ESPduProcessor()
 
 void ESPduProcessor::Process(const DIS::Pdu& packet)
 {
+//	LOG_INFO("**** ESPduProcessor::Process");
+
    if (mConfig == NULL) return;
 
    const DIS::EntityStatePdu& pdu = static_cast<const DIS::EntityStatePdu&>(packet);
+
+   //LOG_INFO("Actor ID: " + dtUtil::ToString(pdu.getEntityID()));
 
    // find out if there is an actor for this ID
    const dtCore::UniqueId* actorID = mConfig->GetActiveEntityControl().GetActor(pdu.getEntityID());
@@ -60,16 +64,17 @@ void ESPduProcessor::SendPartialUpdate(const DIS::EntityStatePdu& pdu, const dtD
    mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_ACTOR_UPDATED,msg);
 
    // customize it for the actor
-   msg->SetSendingActorId( actor.GetId() );
-   msg->SetAboutActorId( actor.GetId() );
-   msg->SetName( actor.GetName() );
-   msg->SetActorTypeName( actor.GetActorType().GetName() );
-   msg->SetActorTypeCategory( actor.GetActorType().GetCategory() );
+   msg->SetSendingActorId(actor.GetId());
+   msg->SetAboutActorId(actor.GetId());
+   msg->SetName(actor.GetName());
+   msg->SetActorTypeName(actor.GetActorType().GetName());
+   msg->SetActorTypeCategory(actor.GetActorType().GetCategory());
 
    details::PartialApplicator apply;
    apply(pdu, *msg, mConfig);
 
    // send it
+//   LOG_INFO("SENDING MESSAGE");
    mGM->SendMessage( *msg );
 }
 
@@ -111,6 +116,8 @@ void ESPduProcessor::ApplyFullUpdateToProxy(const DIS::EntityStatePdu& pdu, dtGa
 
 void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
 {
+//	LOG_INFO("Create Remote Actor");
+
    const dtDAL::ActorType* actorType(NULL);
    dtDIS::ActorMapConfig& emapper = mConfig->GetActorMap();
 
@@ -118,6 +125,8 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
    
    //LCR: Setup this boolean so if actor mapping doesn't exist try to use the default actor mapping
    bool actorMappingExists = emapper.GetMappedActor(entityType, actorType);
+
+//   LOG_INFO("Does actor mapping exist: " + dtUtil::ToString(actorMappingExists));
 
    if( !actorMappingExists ) {
 
@@ -144,7 +153,7 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
                   "." + dtUtil::ToString<unsigned short>(entityType.getSubcategory()) +
                   "." + dtUtil::ToString<unsigned short>(entityType.getSpecific()) + 
                   "." + dtUtil::ToString<unsigned short>(entityType.getExtra());
-          LOG_INFO("Using the default entity type -> actor mapping for entity type:  " +  entTypeStr);
+ //         LOG_INFO("Using the default entity type -> actor mapping for entity type:  " +  entTypeStr);
         }
    }
 
@@ -152,6 +161,15 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
    if (actorMappingExists)
    //LCR
    {
+//	   LOG_INFO("Creating entity for: " + 
+//		            dtUtil::ToString((int)entityType.getEntityKind()) + 
+//              "." + dtUtil::ToString((int)entityType.getDomain()) +
+//              "." + dtUtil::ToString((int)entityType.getCountry()) + 
+//              "." + dtUtil::ToString((int)entityType.getCategory()) + 
+//              "." + dtUtil::ToString((int)entityType.getSubcategory()) +
+//              "." + dtUtil::ToString((int)entityType.getSpecific()) + 
+//              "." + dtUtil::ToString((int)entityType.getExtra()));
+      
       dtCore::RefPtr<dtGame::ActorUpdateMessage> msg;
       mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_ACTOR_CREATED, msg);
 
@@ -196,7 +214,7 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
    }
    else
    {
-      std::string entTypeStr;
+	  std::string entTypeStr;
       entTypeStr += dtUtil::ToString<unsigned short>(entityType.getEntityKind()) + 
               "." + dtUtil::ToString<unsigned short>(entityType.getDomain()) +
               "." + dtUtil::ToString<unsigned short>(entityType.getCountry()) + 
