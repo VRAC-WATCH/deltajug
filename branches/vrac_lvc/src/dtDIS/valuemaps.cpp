@@ -57,6 +57,11 @@ bool ValueMap::GetArticulationMotionPropertyName(unsigned int motionclass, std::
          propertyname = dtGame::DeadReckoningHelper::DeadReckoningDOF::REPRESENATION_ELEVATION;
       } break;
 
+   case dtDIS::Articulation::MOTION_ELEVATION_RATE:
+      {
+         propertyname = dtGame::DeadReckoningHelper::DeadReckoningDOF::REPRESENATION_ELEVATIONRATE;
+      } break;
+
    default:
       {
          supported = false;
