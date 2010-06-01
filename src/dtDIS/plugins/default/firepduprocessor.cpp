@@ -73,7 +73,7 @@ void FirePduProcessor::NotifyRemoteActor(const DIS::FirePdu& pdu, const dtDAL::A
     //     But I need to make sure that everyone knows about the fire event before I start to reuse it for 
     //     another incoming Fire PDU.
     //     If I am not supposed to reuse it, then who is responsible for deleting old events?
-    //     LCR: TODO: Put the "Weapon Fire Event" string in a constant somewhere
+    //     LCR: TODO: Put the "Weapon Fire Event" string in a constant in propertyname.h/.cpp
     dtDAL::GameEvent *event = dtDAL::GameEventManager::GetInstance().FindEvent("Weapon Fire Event");
 
     if(NULL == event) {
