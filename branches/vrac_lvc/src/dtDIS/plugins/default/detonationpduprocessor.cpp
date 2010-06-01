@@ -4,6 +4,7 @@ Dignitas Technologies, LLC
 
 #include <dtDIS/plugins/default/detonationpduprocessor.h>
 
+#include <dtDIS/DetonationMessage.h>
 #include <dtDIS/sharedstate.h>
 #include <dtGame/gamemanager.h>
 #include <dtGame/actorupdatemessage.h>
@@ -62,6 +63,7 @@ void DetonationPduProcessor::Process(const DIS::Pdu& packet)
 
 void DetonationPduProcessor::NotifyRemoteActor(const DIS::DetonationPdu& pdu, const dtDAL::ActorProxy& actor)
 {   
+#if 0
     //Technically
     dtCore::RefPtr<dtGame::GameEventMessage> msg;
     mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_GAME_EVENT,msg);
@@ -103,7 +105,18 @@ void DetonationPduProcessor::NotifyRemoteActor(const DIS::DetonationPdu& pdu, co
     //     the firing entity/actor, the munition type, etc. - probably other stuff too
     //
     gameEventMessage->SetGameEvent(*event);
+#endif
+	dtCore::RefPtr<DetonationMessage> msg;
+	mGM->GetMessageFactory().CreateMessage(DetonationMessageType::DETONATION, msg);
+	
+	const DIS::Vector3Double& disLocation = pdu.getLocationInWorldCoordinates();
+	osg::Vec3d location(disLocation.getX(), disLocation.getY(), disLocation.getZ());	
+
+	//msg->SetLocation(osg::Vec3(1010,1310,635));
+	msg->SetLocation(mConfig->GetCoordinateConverter().ConvertToLocalTranslation(location));
+
+	LOG_INFO("***** SENDING DETONATION MESSAGE ************");
 
    // send it
-   mGM->SendMessage( *msg );
+   mGM->SendMessage(*msg);
 }
