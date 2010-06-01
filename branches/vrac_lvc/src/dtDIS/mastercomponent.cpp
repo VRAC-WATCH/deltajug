@@ -124,27 +124,38 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
    const dtGame::MessageType& mt = msg.GetMessageType();
 
    //LCR: Extract update info from message to send to network
-   //this section is all new code (of course the network send code was copied from right below)
    if( mt == dtGame::MessageType::INFO_ACTOR_UPDATED ) {
+      
+      //LCR: This code that sends PDU's could/should be more efficient
+      //     It executes when *any* actor is updated, including remote ones
+      //     Would be better if it only got called for local actors
+      //     FindActorById is probably not terribly fast
 
-      this->mOutgoingMessage.Handle(msg);
+      dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById( msg.GetAboutActorId() );
+      //dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById(msg.GetSendingActorId());
 
-      // write the outgoing packets
-     const DIS::DataStream& ds = mOutgoingMessage.GetData();
-     const unsigned int MTU = 1500;
-     if( ds.size() > MTU )
-     {
-        LOG_WARNING("Network buffer is bigger than LAN supports.")
-     }
+      //LCR: avoid issuing PDU's for remote actors
+      if( proxy->IsGameActorProxy() && !static_cast<dtGame::GameActorProxy*>(proxy)->IsRemote() )
+      {
+         this->mOutgoingMessage.Handle(msg);
 
-     if ( ds.size() > 0 )
-     {
-        //LCR: Here is where PDU get sent
-        mConnection.Send( &(ds[0]), ds.size() );        
-        LOG_INFO("Sent PDU");
-        //LCR
-        mOutgoingMessage.ClearData();
-     }
+         //write the outgoing packets
+         const DIS::DataStream& ds = mOutgoingMessage.GetData();
+         const unsigned int MTU = 1500;
+         if( ds.size() > MTU )
+         {
+            LOG_WARNING("Network buffer is bigger than LAN supports.")
+         }
+
+         if ( ds.size() > 0 )
+         {
+            //LCR: Here is where PDU get sent
+            mConnection.Send( &(ds[0]), ds.size() );        
+            LOG_INFO("Sent PDU");
+            //LCR
+            mOutgoingMessage.ClearData();
+        }        
+      }
    }
    //LCR
 
@@ -154,6 +165,7 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
       // read the incoming packets
       const unsigned int MTU = 1500;
       char buffer[MTU];
+
       size_t recvd(0);
       recvd = mConnection.Receive(buffer , MTU);
       if (recvd != 0)
@@ -161,9 +173,19 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          mIncomingMessage.Process( buffer , recvd , DIS::BIG );
       }
 
+      //LCR: The above mConnection.Receive code seems like it should be in a loop
+      //     The commented code below seems more appropriate, although using it
+      //     may break some things, such as reusing a single game message for fire events. 
+      //(see firepduprocess.cpp)
+      //while( size_t recvd = mConnection.Receive(buffer , MTU) != 0 ) {
+
+      //      mIncomingMessage.Process( buffer , recvd , DIS::BIG );
+      //}
+
       //LCR: the following code probably only needs to be a few lines up
       //     investigate further and possibly delete this next block.
-      // write the outgoing packets
+      //      write the outgoing packets
+      //     don't think the following code will ever even get executed -- needs testing
       {
          const DIS::DataStream& ds = mOutgoingMessage.GetData();
          if( ds.size() > MTU )
