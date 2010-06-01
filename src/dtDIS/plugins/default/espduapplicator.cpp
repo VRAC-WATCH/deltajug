@@ -309,7 +309,7 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    {
       const dtGame::IntMessageParameter* imp = static_cast<const dtGame::IntMessageParameter*>( mp );
       int appearance = imp->GetValue();
-	  LOG_INFO("***** ENTITY APPEARANCE: " + dtUtil::ToString(appearance));
+//	  LOG_INFO("***** ENTITY APPEARANCE: " + dtUtil::ToString(appearance));
       dest.setEntityAppearance( appearance );
    }
 }
