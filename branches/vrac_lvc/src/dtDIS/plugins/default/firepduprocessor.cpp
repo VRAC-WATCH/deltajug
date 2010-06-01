@@ -27,6 +27,8 @@ FirePduProcessor::~FirePduProcessor()
 
 void FirePduProcessor::Process(const DIS::Pdu& packet)
 {
+	LOG_INFO("**** FIRE PDU PROCESSOR *****");
+
    if (mConfig == NULL) return;
    
    const DIS::FirePdu& pdu = static_cast<const DIS::FirePdu&>(packet);
@@ -87,6 +89,7 @@ void FirePduProcessor::NotifyRemoteActor(const DIS::FirePdu& pdu, const dtDAL::A
     //LCR: TODO: Pack more information in the Weapon Fire Events, such as...
     //     the firing entity/actor, the munition type, etc. - probably other stuff too
     //
+	LOG_INFO("SENDING OUT GAME EVENT THAT WE HAVE FIRED OUR GUN**************************");
     gameEventMessage->SetGameEvent(*event);
 
    // send it
