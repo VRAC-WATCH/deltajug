@@ -220,12 +220,15 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    {
 	   const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
 	   const osg::Vec3& gameOrientation = v3mp->GetValue();
+
+       //hack 
+       osg::Vec3 gameOri(gameOrientation.z(), gameOrientation.y(), gameOrientation.x());
 	   
 	   // If we don't have config we should probably throw an exception, cause none of this is going to work
 	   if (config)
 	   {
 			// Convert to DIS rotation
-		   osg::Vec3d remoteRotation = config->GetCoordinateConverter().ConvertToRemoteRotation(gameOrientation);
+		   osg::Vec3d remoteRotation = config->GetCoordinateConverter().ConvertToRemoteRotation(gameOri);
 
 		   // These may have to be jimmied around, to receive we mapped 1-2-0...
 			float psi = remoteRotation[0]; 
