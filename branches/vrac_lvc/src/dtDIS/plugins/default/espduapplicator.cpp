@@ -53,6 +53,8 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
    mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH );
    if( mp != NULL )
    {
+//		LOG_INFO("In Here");
+
       if (config != NULL)
       {
 		  const ResourceMapConfig& resources = config->GetHealthyResourceMap();
@@ -307,6 +309,7 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    {
       const dtGame::IntMessageParameter* imp = static_cast<const dtGame::IntMessageParameter*>( mp );
       int appearance = imp->GetValue();
+	  LOG_INFO("***** ENTITY APPEARANCE: " + dtUtil::ToString(appearance));
       dest.setEntityAppearance( appearance );
    }
 }
@@ -315,110 +318,84 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
 ///\todo use dtUtil::Coordinates::ConvertToLocalRotation for ENTITY_ORIENTATION.
 ///\todo implement dtHLAGM::RPRParameterTranslator::MapFromVelocityVectorToMessageParam for ENTITY_LINEARY_VELOCITY.
 ///\todo implement dtHLAGM::RPRParameterTranslator::MapFromAngularVelocityVectorToMessageParam for ANGULAR_VELOCITY.
-void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
-                                    dtGame::ActorUpdateMessage& dest,
-                                    dtDIS::SharedState* config) 
+void PartialApplicator::operator ()(const DIS::EntityStatePdu& sourcePdu,
+                                    dtGame::ActorUpdateMessage& gameMessage,
+                                    dtDIS::SharedState* sharedState) 
 {
-   dtDAL::NamedParameter* mp ;
+	// Going to exit if we can't get shared state info
+	if (!sharedState) {
+		return;
+	}
+
+   dtDAL::NamedParameter* parameter;
    
-   // position //
-   const DIS::Vector3Double& pos = source.getEntityLocation() ;
-   osg::Vec3d v3(pos.getX(), pos.getY(), pos.getZ());
+   // Get the position of the entity in world coordinates...
+   const DIS::Vector3Double& disPosition = sourcePdu.getEntityLocation() ;
+   osg::Vec3d position(disPosition.getX(), disPosition.getY(), disPosition.getZ());
 
-   //LCR: DIS debugging
-   //char buffer[128];
-   //sprintf(buffer, "DIS xyz: %f, %f, %f", pos.getX(), pos.getY(), pos.getZ());
-   //LOG_INFO(buffer);
-   //LCR
-
-   if (config != NULL)
+   position = sharedState->GetCoordinateConverter().ConvertToLocalTranslation(position);
+      
+   parameter = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::LAST_KNOWN_LOCATION, dtDAL::DataType::VEC3);
+   if (parameter)
    {
-      v3 = config->GetCoordinateConverter().ConvertToLocalTranslation(v3);
+      static_cast<dtGame::Vec3MessageParameter*>(parameter)->SetValue(position);
    }
 
-   // dtDIS Actor Property Name 
-   if ((mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::LAST_KNOWN_LOCATION, dtDAL::DataType::VEC3)))
+   // compute euler angles...
+   osg::Vec3 xyzRotation;
+
+   const DIS::Orientation& orientation = sourcePdu.getEntityOrientation();
+   const osg::Vec3 headingPitchRoll = 
+	   sharedState->GetCoordinateConverter().ConvertToLocalRotation(
+	      orientation.getPsi(), orientation.getTheta(), orientation.getPhi());
+      
+   xyzRotation[0] = headingPitchRoll[0];
+   xyzRotation[1] = headingPitchRoll[1];
+   xyzRotation[2] = headingPitchRoll[2];
+   
+   parameter = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::LAST_KNOWN_ORIENTATION, dtDAL::DataType::VEC3);
+   if (parameter)
    {
-      dtGame::Vec3MessageParameter* v3mp = static_cast<dtGame::Vec3MessageParameter*>(mp);
-      v3mp->SetValue(v3);
+      static_cast<dtDAL::NamedVec3Parameter*>(parameter)->SetValue(xyzRotation);
    }
 
-   // compute euler angles //
-   osg::Vec3 xyzRot;
-
-   if (config != NULL)
+   // Get the velocity
+   parameter = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::ENTITY_LINEARY_VELOCITY, dtDAL::DataType::VEC3 );
+   if (parameter)
    {
-      const DIS::Orientation& orie = source.getEntityOrientation();
-      const osg::Vec3 hpr = config->GetCoordinateConverter().ConvertToLocalRotation(orie.getPsi(), 
-                                                                                    orie.getTheta(),
-																					orie.getPhi());
-      xyzRot[0] = hpr[0];
-      xyzRot[1] = hpr[1];
-      xyzRot[2] = hpr[2];
+       const DIS::Vector3Float&  velocityGcc = sourcePdu.getEntityLinearVelocity();
+       const DIS::Vector3Double& positionGcc = sourcePdu.getEntityLocation();
+
+       osg::Vec3d addedPositionGcc(
+	      positionGcc.getX() + velocityGcc.getX(), 
+          positionGcc.getY() + velocityGcc.getY(),
+          positionGcc.getZ() + velocityGcc.getZ());
+
+       addedPositionGcc = sharedState->GetCoordinateConverter().ConvertToLocalTranslation(addedPositionGcc);
+       static_cast<dtDAL::NamedVec3Parameter*>(parameter)->SetValue(addedPositionGcc - position);
    }
 
-   // dtDIS Actor Property Name
-   if ((mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::LAST_KNOWN_ORIENTATION, dtDAL::DataType::VEC3)))
+   // Appearence
+   parameter = gameMessage.AddUpdateParameter(dtDIS::EntityPropertyName::APPEARANCE, dtDAL::DataType::INT);
+   if (parameter)
    {
-      dtDAL::NamedVec3Parameter* v3mp = static_cast< dtDAL::NamedVec3Parameter*>(mp);
-      v3mp->SetValue(xyzRot);
+	  static_cast<dtDAL::NamedIntParameter*>(parameter)->SetValue(sourcePdu.getEntityAppearance());
    }
 
-   // velocity //
-
-   // dtDIS Actor Property Name
-   if ((mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::ENTITY_LINEARY_VELOCITY, dtDAL::DataType::VEC3 )))
-   {
-
-       //LCR: convert velocity from GCC to local coordinates
-       // There is probably a better way to do this! 
-       //(probably involving a simple rotation of the vector)
-       const DIS::Vector3Float&  velGcc = source.getEntityLinearVelocity();
-       const DIS::Vector3Double& posGcc = source.getEntityLocation();
-
-       osg::Vec3d u3(posGcc.getX() + velGcc.getX(), 
-                     posGcc.getY() + velGcc.getY(),
-                     posGcc.getZ() + velGcc.getZ());
-
-       if (config != NULL)
-       {
-           u3 = config->GetCoordinateConverter().ConvertToLocalTranslation(u3);
-           dtDAL::NamedVec3Parameter* v3mp = static_cast<dtDAL::NamedVec3Parameter*>(mp);
-           v3mp->SetValue(u3 - v3);
-       }
-       //LCR
-   }
-
-   mp = dest.AddUpdateParameter(dtDIS::EntityPropertyName::APPEARANCE, dtDAL::DataType::INT);
-   if (mp != NULL)
-   {
-	   dtDAL::NamedIntParameter* appearanceParam = static_cast<dtDAL::NamedIntParameter*>(mp);      
-      appearanceParam->SetValue(source.getEntityAppearance());
-   }
-
-#if 0
-   UpdateAcceleration( vel ) ;
-
-   if( mp = dest.AddUpdateParameter( dtDIS::HLABaseEntityPropertyName::PROPERTY_ACCELERATION_VECTOR , dtDAL::DataType::VEC3 ) )
-   {
-      dtDAL::NamedVec3Parameter* v3mp = static_cast< dtDAL::NamedVec3Parameter* > ( mp ) ;
-      v3mp->SetValue( mAcceleration ) ;
-   }
-#endif
-
+#if 1
    //TODO: add angular velocity vector
 
-   // articulation support
-   unsigned char art_param_count=source.getArticulationParameters().size();
+   // TODO - special case for different entity articulation support
+   unsigned char art_param_count = sourcePdu.getArticulationParameters().size();
    if( art_param_count > 0 )
    {
-      mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::ARTICULATION, dtDAL::DataType::GROUP );
-      if( mp != NULL )
+      parameter = gameMessage.AddUpdateParameter( dtDIS::EnginePropertyName::ARTICULATION, dtDAL::DataType::GROUP );
+      if( parameter != NULL )
       {
-         dtDAL::NamedGroupParameter* articulation_group = static_cast<dtDAL::NamedGroupParameter*>( mp );
+         dtDAL::NamedGroupParameter* articulation_group = static_cast<dtDAL::NamedGroupParameter*>( parameter );
 
          // respond to each articulation parameter
-         const std::vector<DIS::ArticulationParameter>& params = source.getArticulationParameters();
+         const std::vector<DIS::ArticulationParameter>& params = sourcePdu.getArticulationParameters();
          if( params.size() != art_param_count )
          {  // some debug help, error checking
             LOG_DEBUG("Parameter count does not equal the number of parameters received.")
@@ -445,7 +422,8 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
             }  // end switch
          } // end for
       } // end if( mp
-   }  // end if( art_param_count
+   } // end if( art_param_count
+#endif
 }
 
 #if 0

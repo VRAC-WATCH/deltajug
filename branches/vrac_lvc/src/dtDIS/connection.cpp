@@ -1,6 +1,8 @@
 #include <dtDIS/connection.h>
 #include <dtUtil/log.h>
+#include <dtUtil/stringutils.h>
 
+#include <iostream>
 #include <sstream>
 
 using namespace dtDIS;
@@ -42,12 +44,22 @@ void Connection::Connect(unsigned int port, const char* host)
    mSocket = nlOpen(port, NL_UDP_BROADCAST);
    //LCR
 
+//	LOG_INFO("!!!!!!!!!!!!! OPENING SOCKET !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
    if(mSocket == NL_INVALID)
    {
       std::ostringstream strm;
       strm << "Can't open socket: " << nlGetErrorStr(nlGetError())
            << ". System: " << + nlGetSystemErrorStr(nlGetSystemError());
       LOG_ERROR( strm.str() )
+   } 
+   else
+   {
+	   NLaddress addr;
+	   nlGetLocalAddr(mSocket, &addr);
+
+	   NLbyte byteString[256];
+//	   LOG_INFO("Socket address: " + dtUtil::ToString(nlAddrToString(&addr, byteString)));
    }
 
    /*
@@ -100,6 +112,16 @@ void Connection::Send(const char* buf, size_t numbytes)
    {
       return;
    }
+#if 0
+   LOG_INFO("***** Connection::Send, buf: " + dtUtil::ToString((void*)buf) + ", numbytes: " + dtUtil::ToString(numbytes)); 
+   
+   LOG_INFO("***** numbytes: " + dtUtil::ToString(numbytes));
+   LOG_INFO("***** SOCKET: " + dtUtil::ToString(mSocket));		
+   LOG_INFO("**** SENDING: " + dtUtil::ToString(buf));
+#endif
+#if 1
+
+//   LOG_INFO("** Sending PDU Message ***");
 
    if (int ret = nlWrite(mSocket, (NLvoid *)buf, numbytes ))
    {
@@ -114,18 +136,43 @@ void Connection::Send(const char* buf, size_t numbytes)
          LOG_ERROR(strm.str() + nlGetErrorStr(nlGetError()) + ". System: " + nlGetSystemErrorStr(nlGetSystemError()) );
       }
    }
+#endif
 }
 
 size_t Connection::Receive(char* buf, size_t numbytes)
 {
-   NLint result = nlRead(mSocket, (NLvoid *)buf, (NLint)numbytes);
+#if 0
+	LOG_INFO("TRYING TO RECEIVE A MESSAGE");
+
+	LOG_INFO("NUM BYTES: " + dtUtil::ToString(numbytes));
+	
+	LOG_INFO("size of buf: " + dtUtil::ToString(sizeof buf));
+
+	std::cerr.flush();
+	std::cout.flush();
+#endif
+#if 0
+	char* localBuffer = new char[1500];
+
+   //NLint result = nlRead(mSocket, (NLvoid *)buf, (NLint)numbytes);
+	NLint result = nlRead(mSocket, (NLvoid *)localBuffer, (NLint)numbytes);
+	strcpy(localBuffer, buf);
+	delete[] localBuffer;
+#endif
+#if 0
+	const size_t MTU = 1500;
+	char buffer[MTU];
+	NLint result = nlRead(mSocket, (NLvoid*) buffer, (NLint)MTU);
+#endif
+	NLint result = nlRead(mSocket, (NLvoid *)buf, (NLint)numbytes);
+	
 
    if ( result == NL_INVALID )
    {
       HandleError();
       return 0;
    }
-
+	
    return result;
 }
 

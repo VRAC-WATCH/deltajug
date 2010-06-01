@@ -158,14 +158,8 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
    //LCR: Extract update info from message to send to network
    if( mt == dtGame::MessageType::INFO_ACTOR_UPDATED ) {
       
-      //LCR: This code that sends PDU's could/should be more efficient
-      //     It executes when *any* actor is updated, including remote ones
-      //     Would be better if it only got called for local actors
-      //     FindActorById is probably not terribly fast
-
       dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById( msg.GetAboutActorId() );
-      //dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById(msg.GetSendingActorId());
-
+      
       //LCR: avoid issuing PDU's for remote actors
       if( proxy->IsGameActorProxy() && !static_cast<dtGame::GameActorProxy*>(proxy)->IsRemote() )
       {
@@ -181,9 +175,11 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 
          if ( ds.size() > 0 )
          {
+			 //LOG_INFO("mConnection.send()");
             //LCR: Here is where PDU get sent
-            mConnection.Send( &(ds[0]), ds.size() );        
-            LOG_INFO("Sent PDU");
+            
+			mConnection.Send( &(ds[0]), ds.size() );        
+            //LOG_INFO("Sent PDU");
             //LCR
             mOutgoingMessage.ClearData();
         }        
@@ -197,13 +193,19 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 	    // Remove entities that are no logner active
 		this->CheckForDefunctEntities();
 
+
       // read the incoming packets
       const unsigned int MTU = 1500;
       char buffer[MTU];
 
-      size_t recvd(0);
+     size_t recvd(0);
+
+//	  LOG_INFO("*ON RECEIVE* sizeof buffer: " + dtUtil::ToString(sizeof buffer));
+//	  LOG_INFO("*ON RECEIVE* MTU: " + dtUtil::ToString(MTU));
+
       recvd = mConnection.Receive(buffer , MTU);
-      if (recvd != 0)
+      
+	  if (recvd != 0)
       {
          mIncomingMessage.Process( buffer , recvd , DIS::BIG );
       }
@@ -230,6 +232,7 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 
          if ( ds.size() > 0 )
          {
+//			 LOG_INFO("mConnection.send(2)");
             mConnection.Send( &(ds[0]), ds.size() );
             mOutgoingMessage.ClearData();
          }
