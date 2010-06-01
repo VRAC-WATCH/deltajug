@@ -48,7 +48,8 @@ namespace dtDIS
       {
          MOTION_AZIMUTH = 11,
          MOTION_AZIMUTH_RATE = 12,
-         MOTION_ELEVATION = 13
+         MOTION_ELEVATION = 13,
+         MOTION_ELEVATION_RATE = 14
       };
 
       /// a static definition of the scene graph node names to be used for articulated parts.
