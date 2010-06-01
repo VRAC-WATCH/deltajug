@@ -122,6 +122,33 @@ void MasterComponent::OnPluginUnloaded(PluginManager::LibraryRegistry::value_typ
 void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 {
    const dtGame::MessageType& mt = msg.GetMessageType();
+
+   //LCR: Extract update info from message to send to network
+   //this section is all new code (of course the network send code was copied from right below)
+   if( mt == dtGame::MessageType::INFO_ACTOR_UPDATED ) {
+
+      this->mOutgoingMessage.Handle(msg);
+
+      // write the outgoing packets
+     const DIS::DataStream& ds = mOutgoingMessage.GetData();
+     const unsigned int MTU = 1500;
+     if( ds.size() > MTU )
+     {
+        LOG_WARNING("Network buffer is bigger than LAN supports.")
+     }
+
+     if ( ds.size() > 0 )
+     {
+        //LCR: Here is where PDU get sent
+        mConnection.Send( &(ds[0]), ds.size() );        
+        LOG_INFO("Sent PDU");
+        //LCR
+        mOutgoingMessage.ClearData();
+     }
+   }
+   //LCR
+
+
    if( mt == dtGame::MessageType::TICK_LOCAL )
    {
       // read the incoming packets
@@ -134,6 +161,8 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          mIncomingMessage.Process( buffer , recvd , DIS::BIG );
       }
 
+      //LCR: the following code probably only needs to be a few lines up
+      //     investigate further and possibly delete this next block.
       // write the outgoing packets
       {
          const DIS::DataStream& ds = mOutgoingMessage.GetData();

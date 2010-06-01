@@ -152,6 +152,7 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    if (const dtGame::MessageParameter* mp = source.GetUpdateParameter(dtDIS::EnginePropertyName::ENTITY_ORIENTATION)) 
    {
       // DIS EntityState actor property
+      //LCR: TODO: Must convert to DIS Euler angles
       const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
       const osg::Vec3& val = v3mp->GetValue();
       DIS::Orientation orie;
@@ -165,6 +166,7 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    {
       // DIS EntityState actor property
       //TODO convert to DIS coordinate system?
+      //LCR: TODO:  Must convert to DIS Coordinate System
       const dtGame::Vec3MessageParameter* v3mp = static_cast<const dtGame::Vec3MessageParameter*>(mp);
       const osg::Vec3& val = v3mp->GetValue();
       DIS::Vector3Float vel;

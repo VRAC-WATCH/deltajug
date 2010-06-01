@@ -53,6 +53,10 @@ DIS::Pdu* ActorUpdateToEntityState::Convert(const dtGame::Message& source)
 
    downcastPdu->setTimestamp(mGM->GetRealClockTime());
 
+   //LCR: compute size of entity state (is this formula always correct?)
+   downcastPdu->setLength( 144 + 16 * downcastPdu->getNumberOfArticulationParameters() );
+   //LCR
+
    return mPdu;
 }
 
@@ -78,14 +82,15 @@ void ActorUpdateToEntityState::SetEntityType(const dtCore::UniqueId& uniqueID,
    DTUNREFERENCED_PARAMETER(tokenizer); //to squelch "unreferenced" compiler warning
 
    tokenizer.tokenize(tokens, entityTypeStr);
-   if (tokens.size() == 6)
+   if (tokens.size() == 7)
    {
-      entityType.setEntityKind(atoi(tokens[0].c_str()));
-      entityType.setDomain(atoi(tokens[1].c_str()));
-      entityType.setCountry(atoi(tokens[2].c_str()));
-      entityType.setCategory(atoi(tokens[3].c_str()));
-      entityType.setSubcategory(atoi(tokens[4].c_str()));
-      entityType.setSpecific(atoi(tokens[5].c_str()));
+      entityType.setEntityKind(  atoi(tokens[0].c_str()));
+      entityType.setDomain(      atoi(tokens[1].c_str()));
+      entityType.setCountry(     atoi(tokens[2].c_str()));
+      entityType.setCategory(    atoi(tokens[3].c_str()));
+      entityType.setSubcategory( atoi(tokens[4].c_str()));
+      entityType.setSpecific(    atoi(tokens[5].c_str()));
+      entityType.setExtra(       atoi(tokens[6].c_str()));
    }
 
    downcastPdu->setEntityType(entityType);

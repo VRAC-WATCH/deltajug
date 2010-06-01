@@ -23,9 +23,14 @@ void OutgoingMessage::Handle(const DIS::Pdu& pdu)
    pdu.marshal( mData );
 }
 
+//LCR: this looks like it might be the code where game messages get converted
+//into PDU's
 void OutgoingMessage::Handle(const dtGame::Message& msg)
 {
    const dtGame::MessageType& mt = msg.GetMessageType();
+
+   //LCR: Here is where an actor update message gets converted to a PDU
+   //     I'm guessing we'll need to do more work here eventually
 
    ///\todo use the rest of the adapters in the multimap container.
    AdapterMap::iterator iter = mSenders.find( &mt );
@@ -46,6 +51,7 @@ void OutgoingMessage::Handle(const dtGame::Message& msg)
       LOG_DEBUG("No packet adapter for Message of type " + mt.GetName() )
    }
 }
+
 
 void OutgoingMessage::AddAdaptor(const dtGame::MessageType* mt, IMessageToPacketAdapter* adapter)
 {
