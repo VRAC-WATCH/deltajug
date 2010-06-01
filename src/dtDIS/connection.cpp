@@ -135,5 +135,10 @@ void Connection::HandleError()
    const NLchar* errorString = nlGetErrorStr( error );
 
    LOG_ERROR("A network error occurred: " + std::string(errorString));
+
+   NLint errorInt = nlGetSystemError();
+   const NLchar* systemErrorString = nlGetSystemErrorStr(errorInt);
+
+   LOG_ERROR("A system error occurred: " + std::string(systemErrorString));
 }
 

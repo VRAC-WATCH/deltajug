@@ -37,7 +37,9 @@ void ESPduProcessor::Process(const DIS::Pdu& packet)
       if (proxy)
       {
          SendPartialUpdate(pdu, *proxy);
-      }     
+      }
+
+	  this->UpdateActorUpdateTime(*actorID);
    }
    else
    {
@@ -188,6 +190,8 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
       //store the ID for later retrieval
       mConfig->GetActiveEntityControl().AddEntity(pdu.getEntityID(), newActorID);
 
+
+	  this->UpdateActorUpdateTime(newActorID);
       //TODO SendPartialUpdate()?
    }
    else
@@ -202,4 +206,9 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
               "." + dtUtil::ToString<unsigned short>(entityType.getExtra());
       LOG_WARNING("Don't know the ActorType to create for:" +  entTypeStr);
    }
+}
+ 
+void dtDIS::ESPduProcessor::UpdateActorUpdateTime(const dtCore::UniqueId& entityID) {
+   double time = mGM->GetSimulationTime();
+	mConfig->GetActorUpdateMap().Update(entityID, time);
 }

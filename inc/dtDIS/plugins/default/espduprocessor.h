@@ -74,6 +74,7 @@ namespace dtDIS
    private:
       ESPduProcessor();  ///< not implemented by design
 
+	  void UpdateActorUpdateTime(const dtCore::UniqueId& entityID);
       void CreateRemoteActor(const DIS::EntityStatePdu& pdu);
 
       //using an refptr results in a circular reference.

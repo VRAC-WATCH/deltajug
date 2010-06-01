@@ -47,6 +47,10 @@ namespace dtDIS
    class DT_DIS_EXPORT MasterComponent : public dtGame::GMComponent
    {
    public:
+
+	   static const double TIME_OUT_CHECK_INTERVAL;
+	   static const double TIME_OUT_LIMIT;
+
       /// supply the configuration files needed to support DIS.
       /// @param config the result of reading data files needed for this component to work.  This class does not assume ownership of the memory.
       /// @param connection_file The XML file that shows the ConnectionData.
@@ -123,6 +127,9 @@ namespace dtDIS
       OutgoingMessage mOutgoingMessage;
       SharedState* mConfig;
       DefaultPlugin* mDefaultPlugin;
+	  double mTimeOutDelta;
+
+	  void CheckForDefunctEntities();
    };
 }
 
