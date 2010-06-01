@@ -12,6 +12,7 @@
 #include <DIS/PDUType.h>
 
 #include <cstddef>
+#include <dtDIS/plugins/default/detonationpduprocessor.h>
 #include <dtDIS/plugins/default/firepduprocessor.h>
 #include <dtDIS/plugins/default/espduprocessor.h>  
 #include <dtDIS/plugins/default/createentityprocessor.h>   
@@ -26,6 +27,7 @@ DefaultPlugin::DefaultPlugin()
    , mRemoveProcessor( NULL )
    , mSendingAdapter( NULL )
    , mFireProcessor( NULL )
+   , mDetonationProcessor( NULL)
 {
 }
 
@@ -38,13 +40,15 @@ void DefaultPlugin::Start(DIS::IncomingMessage& imsg,
                                  dtGame::GameManager* gm,
                                  dtDIS::SharedState* config)
 {
+   mDetonationProcessor = new DetonationPduProcessor(gm, config);
    mFireProcessor = new FirePduProcessor(gm, config);
    mESProcessor = new ESPduProcessor(gm, config);
    mCreateProcessor = new CreateEntityProcessor( &omsg, config);
    mRemoveProcessor = new RemoveEntityProcessor( &omsg, config);
    mSendingAdapter = new ActorUpdateToEntityState( config, gm );
 
-   imsg.AddProcessor( DIS::PDU_FIRE        , mFireProcessor);
+   imsg.AddProcessor( DIS::PDU_DETONATION,   mDetonationProcessor);
+   imsg.AddProcessor( DIS::PDU_FIRE,         mFireProcessor);
    imsg.AddProcessor( DIS::PDU_ENTITY_STATE, mESProcessor );
    imsg.AddProcessor( DIS::PDU_CREATE_ENTITY, mCreateProcessor );
    imsg.AddProcessor( DIS::PDU_REMOVE_ENTITY, mRemoveProcessor );
@@ -66,11 +70,15 @@ void DefaultPlugin::Start(DIS::IncomingMessage& imsg,
 
 void DefaultPlugin::Finish(DIS::IncomingMessage& imsg, dtDIS::OutgoingMessage& omsg)
 {
-   imsg.RemoveProcessor( DIS::PDU_ENTITY_STATE , mESProcessor );
-   imsg.RemoveProcessor( DIS::PDU_CREATE_ENTITY , mCreateProcessor );
-   imsg.RemoveProcessor( DIS::PDU_REMOVE_ENTITY , mRemoveProcessor );
+   imsg.RemoveProcessor( DIS::PDU_DETONATION,    mDetonationProcessor);
+   imsg.RemoveProcessor( DIS::PDU_FIRE,          mFireProcessor );
+   imsg.RemoveProcessor( DIS::PDU_ENTITY_STATE,  mESProcessor );
+   imsg.RemoveProcessor( DIS::PDU_CREATE_ENTITY, mCreateProcessor );
+   imsg.RemoveProcessor( DIS::PDU_REMOVE_ENTITY, mRemoveProcessor );
    omsg.RemoveAdaptor( &dtGame::MessageType::INFO_ACTOR_UPDATED , mSendingAdapter );
 
+   delete mDetonationProcessor;
+   delete mFireProcessor;
    delete mESProcessor;
    delete mCreateProcessor;
    delete mRemoveProcessor;
