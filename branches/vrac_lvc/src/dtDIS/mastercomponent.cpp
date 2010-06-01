@@ -1,5 +1,6 @@
 #include <dtDIS/mastercomponent.h>
 #include <dtDIS/sharedstate.h>
+#include <dtDIS/DetonationMessage.h>
 
 #include <DIS/PDUType.h>
 
@@ -64,6 +65,9 @@ void MasterComponent::OnAddedToGM()
 
    // make a connection to the DIS multicast network
    mConnection.Connect( connect_data.port , connect_data.ip.c_str() );
+
+   // Register Detonation Message
+   DetonationMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
 }
 
 void MasterComponent::OnRemovedFromGM()
