@@ -1,5 +1,4 @@
-#include <dtdis/DetonationMessage.h>
-#include <dtgame/messagefactory.h>
+#include <dtDIS/detonationmessage.h>
 
 namespace dtDIS
 {

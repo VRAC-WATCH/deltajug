@@ -1,8 +1,10 @@
-#pragma once
+#ifndef __DELTA_DTDIS_DETONATION_MESSAGE_H__
+#define __DELTA_DTDIS_DETONATION_MESSAGE_H__
 
 #include "dtdisexport.h"
-#include <dtgame/messagetype.h>
-#include <dtgame/message.h>
+#include <dtGame/messagetype.h>
+#include <dtGame/message.h>
+#include <dtGame/messagefactory.h>
 
 namespace dtDIS
 {
@@ -36,3 +38,5 @@ private:
 };
 
 }
+
+#endif	  // __DELTA_DTDIS_DETONATION_MESSAGE_H__
