@@ -314,7 +314,7 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
       v3mp->SetValue(v3);
    }
 
-   // euler angles //
+   // compute euler angles //
    osg::Vec3 xyzRot;
 
    if (config != NULL)
@@ -323,13 +323,9 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& source,
       const osg::Vec3 hpr = config->GetCoordinateConverter().ConvertToLocalRotation(orie.getPsi(), 
                                                                                     orie.getTheta(), 
                                                                                     orie.getPhi());
-      xyzRot[0] = hpr[1]; //swap from HPR to "rotations about the axis"
-      xyzRot[1] = hpr[2];
-      xyzRot[2] = hpr[0];
-      //xyzRot[0] = osg::RadiansToDegrees(orie.getPhi()); //pitch
-      //xyzRot[1] = osg::RadiansToDegrees(orie.getTheta()); //roll
-      //xyzRot[2] = osg::RadiansToDegrees(orie.getPsi()); //heading
-
+      xyzRot[0] = hpr[0];
+      xyzRot[1] = hpr[1];
+      xyzRot[2] = hpr[2];
    }
 
    // dtDIS Actor Property Name
