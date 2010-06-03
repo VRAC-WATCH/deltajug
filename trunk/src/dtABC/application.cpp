@@ -97,6 +97,9 @@ Application::Application(const std::string& configFilename, dtCore::DeltaWin* wi
    ApplicationConfigHandler handler;
    if (ParseConfigFile(configFilename, handler))
    {
+		// deltajug fix
+		CreateInstances();
+/*
       //create instances using values from the parsed config file
       CreateInstances(handler.mConfigData.WINDOW_NAME,
                       handler.mConfigData.WINDOW_X,
@@ -109,6 +112,7 @@ Application::Application(const std::string& configFilename, dtCore::DeltaWin* wi
 
       //apply the config data to the created instances
       ApplyConfigData(handler);
+*/
    }
    else
    {
