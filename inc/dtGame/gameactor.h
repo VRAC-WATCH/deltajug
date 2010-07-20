@@ -28,6 +28,7 @@
 #include <dtGame/export.h>
 #include <dtGame/actorcomponentbase.h>
 
+
 namespace dtUtil
 {
    class Log;
@@ -41,6 +42,7 @@ namespace dtGame
    class Invokable;
    class MessageType;
    class TickMessage;
+   class TrackedMessage;
 
    class GameActorProxy;
    /**
@@ -88,6 +90,11 @@ namespace dtGame
        */
       virtual void OnTickLocal(const TickMessage& tickMessage);
 
+		/*	 LVC ADDITION
+		*Method for handeling tracked messages
+		*/
+		virtual void OnTrackInfo(const TrackedMessage& trackedMessage);
+		
       ///Deprecated, override the one that takes a TickMessage;
       virtual void TickLocal(const Message& tickMessage);
 
@@ -108,7 +115,7 @@ namespace dtGame
        * a message using the default PROCESS_MSG_INVOKABLE name. To use this, override it
        * and handle any messages that you want. Then, in the OnEnteredWorld() method on your
        * proxy, add a line, something either of these:
-       *    RegisterForMessages(dtGame::MessageType::INFO_GAME_EVENT);
+       *    RegisterForMessages(dtvoid GameActor::OnTrackInfo(const TrackedMessage trackedMessage)Game::MessageType::INFO_GAME_EVENT);
        *    RegisterForMessages(dtGame::MessageType::INFO_GAME_EVENT, PROCESS_MSG_INVOKABLE);
        * @param message the actual message
        */
@@ -200,6 +207,9 @@ namespace dtGame
       /// invokables for tick local and remote - will call TickLocal() and TickRemote();
       static const std::string TICK_LOCAL_INVOKABLE;
       static const std::string TICK_REMOTE_INVOKABLE;
+      
+      //LVC ADDITION
+      static const std::string TRACKER_INVOKABLE;
 
       /// Internal class to represent the ownership of an actor proxy
       class DT_GAME_EXPORT Ownership : public dtUtil::Enumeration

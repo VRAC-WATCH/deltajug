@@ -33,6 +33,9 @@
 #include <dtGame/basemessages.h>
 #include <dtGame/exceptionenum.h>
 
+#include <dtGame/trackedmessage.h>
+
+
 #include <dtCore/shadergroup.h>
 #include <dtCore/shaderprogram.h>
 #include <dtCore/shadermanager.h>
@@ -50,6 +53,9 @@ namespace dtGame
    const std::string GameActorProxy::PROCESS_MSG_INVOKABLE("Process Message");
    const std::string GameActorProxy::TICK_LOCAL_INVOKABLE("Tick Local");
    const std::string GameActorProxy::TICK_REMOTE_INVOKABLE("Tick Remote");
+   
+   //LVC ADDITION
+   const std::string GameActorProxy::TRACKER_INVOKABLE("Info Tracked");
 
    ///////////////////////////////////////////
 
@@ -587,6 +593,9 @@ namespace dtGame
 
       AddInvokable(*new Invokable(PROCESS_MSG_INVOKABLE,
                dtDAL::MakeFunctor(GetGameActor(), &GameActor::ProcessMessage)));
+               
+      //LVC Addition
+      AddInvokable(*new Invokable(TRACKER_INVOKABLE, dtDAL::MakeFunctor(GetGameActor(), &GameActor::OnTrackInfo)));
    }
 
    Invokable* GameActorProxy::GetInvokable(const std::string& name)
@@ -858,6 +867,11 @@ namespace dtGame
    {
       //Call to support older code.
       TickRemote(tickMessage);
+   }
+   
+   //////////////////////////////////////////LVC ADDITION/////////////////////////////////////////////////
+   void GameActor::OnTrackInfo(const TrackedMessage& trackedMessage)
+   {
    }
 
    ///////////////////////////////////////////////////////////////////////////////////////////////////////
