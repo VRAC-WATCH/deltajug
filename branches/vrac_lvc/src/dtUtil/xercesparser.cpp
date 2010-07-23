@@ -82,19 +82,27 @@ bool XercesParser::Parse(const std::string& datafile,
          }
          else   // turn on schema checking
          {        
+			 //LOG_INFO("STILL ALIVE 2");
             // In some cases, schema will contain a url that is
             // relative to the current working directory which
             // may cause problems with xerces correctly finding it
             schema = osgDB::getRealPath(schema);
-
+            //LOG_INFO("STILL ALIVE 3");
             mParser->setFeature(XMLUni::fgXercesSchema, true);                  // enables schema checking.
+			//LOG_INFO("STILL ALIVE 4");
             mParser->setFeature(XMLUni::fgSAX2CoreValidation, true);            // posts validation errors.
-            mParser->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);  // does not allow parsing if schema is not fulfilled.
-            mParser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType);
+            //LOG_INFO("STILL ALIVE 5");
+			mParser->setFeature(XMLUni::fgXercesValidationErrorAsFatal, true);  // does not allow parsing if schema is not fulfilled.
+            //LOG_INFO("STILL ALIVE 6");
+			mParser->loadGrammar(schema.c_str(), Grammar::SchemaGrammarType);
             XMLCh* SCHEMA = XMLString::transcode(schema.c_str());
-            mParser->setFeature(XMLUni::fgXercesSchema, true);
-            mParser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation, SCHEMA);
-            XMLString::release(&SCHEMA);
+            //LOG_INFO("STILL ALIVE 7");
+			mParser->setFeature(XMLUni::fgXercesSchema, true);
+            //LOG_INFO("STILL ALIVE 8");
+			mParser->setProperty(XMLUni::fgXercesSchemaExternalNoNameSpaceSchemaLocation, SCHEMA);
+            //LOG_INFO("STILL ALIVE 9");
+			XMLString::release(&SCHEMA);
+			//LOG_INFO("STILL ALIVE 10");
          }
       }
    }

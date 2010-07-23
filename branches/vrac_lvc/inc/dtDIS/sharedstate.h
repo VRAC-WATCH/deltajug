@@ -182,6 +182,9 @@ namespace dtDIS
 	  ResourceMapConfig& GetDestroyedResourceMap();
 	  const ResourceMapConfig& GetDestroyedResourceMap() const;
 
+	  ResourceMapConfig& GetAnimationResourceMap();
+	  const ResourceMapConfig& GetAnimationResourceMap() const;
+
       ActiveEntityControl& GetActiveEntityControl();
       const ActiveEntityControl& GetActiveEntityControl() const;
 
@@ -203,6 +206,7 @@ namespace dtDIS
       ResourceMapConfig mHealthyResourceMap;
 	  ResourceMapConfig mDamagedResourceMap;
 	  ResourceMapConfig mDestroyedResourceMap;
+	  ResourceMapConfig mAnimationResourceMap;
 	  	  
 	  ActorUpdateConfig mActorUpdateConfig;
 

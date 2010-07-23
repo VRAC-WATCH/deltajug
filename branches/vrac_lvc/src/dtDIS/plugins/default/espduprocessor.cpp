@@ -22,13 +22,13 @@ ESPduProcessor::~ESPduProcessor()
 
 void ESPduProcessor::Process(const DIS::Pdu& packet)
 {
-//	LOG_INFO("**** ESPduProcessor::Process");
+	//LOG_INFO("**** ESPduProcessor::Process");
 
    if (mConfig == NULL) return;
 
    const DIS::EntityStatePdu& pdu = static_cast<const DIS::EntityStatePdu&>(packet);
 
-   //LOG_INFO("Actor ID: " + dtUtil::ToString(pdu.getEntityID()));
+   //LOG_INFO("Entity ID: " + dtUtil::ToString(pdu.getEntityID().getEntity()));
 
    // find out if there is an actor for this ID
    const dtCore::UniqueId* actorID = mConfig->GetActiveEntityControl().GetActor(pdu.getEntityID());
@@ -118,7 +118,7 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
 {
 //	LOG_INFO("Create Remote Actor");
 
-   const dtDAL::ActorType* actorType(NULL);
+   const dtDAL::ActorType* actorType(NULL);   
    dtDIS::ActorMapConfig& emapper = mConfig->GetActorMap();
 
    const DIS::EntityType& entityType = pdu.getEntityType();
@@ -132,7 +132,7 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
 
         //LCR:  Use DIS Enum (0,0,0,0,0,0,0) for a default ActorMapping
         DIS::EntityType defaultType;
-        defaultType.setCategory(0);
+        defaultType.setCategory(0);  
         defaultType.setCountry(0);
         defaultType.setDomain(0);
         defaultType.setEntityKind(0);
@@ -153,7 +153,11 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
                   "." + dtUtil::ToString<unsigned short>(entityType.getSubcategory()) +
                   "." + dtUtil::ToString<unsigned short>(entityType.getSpecific()) + 
                   "." + dtUtil::ToString<unsigned short>(entityType.getExtra());
- //         LOG_INFO("Using the default entity type -> actor mapping for entity type:  " +  entTypeStr);
+          LOG_INFO("Using the default entity type -> actor mapping for entity type:  " +  entTypeStr);
+
+          //on-the-fly addition of the mapping for this entity type
+          //(even though its not in the mapping file) we map it to the default type;
+          emapper.AddActorMapping(pdu.getEntityType(), actorType);
         }
    }
 
@@ -161,14 +165,14 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
    if (actorMappingExists)
    //LCR
    {
-//	   LOG_INFO("Creating entity for: " + 
-//		            dtUtil::ToString((int)entityType.getEntityKind()) + 
-//              "." + dtUtil::ToString((int)entityType.getDomain()) +
-//              "." + dtUtil::ToString((int)entityType.getCountry()) + 
-//              "." + dtUtil::ToString((int)entityType.getCategory()) + 
-//              "." + dtUtil::ToString((int)entityType.getSubcategory()) +
-//              "." + dtUtil::ToString((int)entityType.getSpecific()) + 
-//              "." + dtUtil::ToString((int)entityType.getExtra()));
+	   LOG_INFO("Creating entity for: " + 
+		            dtUtil::ToString((int)entityType.getEntityKind()) + 
+              "." + dtUtil::ToString((int)entityType.getDomain()) +
+              "." + dtUtil::ToString((int)entityType.getCountry()) + 
+              "." + dtUtil::ToString((int)entityType.getCategory()) + 
+              "." + dtUtil::ToString((int)entityType.getSubcategory()) +
+              "." + dtUtil::ToString((int)entityType.getSpecific()) + 
+              "." + dtUtil::ToString((int)entityType.getExtra()));
       
       dtCore::RefPtr<dtGame::ActorUpdateMessage> msg;
       mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_ACTOR_CREATED, msg);

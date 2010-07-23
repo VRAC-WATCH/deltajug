@@ -4,7 +4,7 @@
 #include <dtDIS/disxml.h>
 
 #include <cstddef>                   // for NULL
-
+#include <dtUtil/stringutils.h>
 using namespace dtDIS;
 
 bool ActorUpdateConfig::Update(const dtCore::UniqueId& entityID, double updateTime) {
@@ -42,6 +42,15 @@ std::vector<dtCore::UniqueId> ActorUpdateConfig::GetTimedOutActors(double curren
 
 bool ActorMapConfig::AddActorMapping(const DIS::EntityType& eid, const dtDAL::ActorType* at)
 {
+	LOG_INFO("Adding actor map: " 
+			+ dtUtil::ToString(static_cast<int>(eid.getEntityKind()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getDomain()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getCountry()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getCategory()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getSubcategory()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getSpecific()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getExtra()))
+			+ " - For Actor Type: " + at->GetName());
    return( mMap.insert( ActorMap::value_type(eid,at) ).second );
 }
 
@@ -168,6 +177,16 @@ ResourceMapConfig& SharedState::GetDestroyedResourceMap()
 const ResourceMapConfig& SharedState::GetDestroyedResourceMap() const
 {
    return mDestroyedResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetAnimationResourceMap()
+{
+	return mAnimationResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetAnimationResourceMap() const
+{
+	return mAnimationResourceMap;
 }
 
 ActiveEntityControl& SharedState::GetActiveEntityControl()

@@ -24,10 +24,14 @@
 
 using namespace dtDIS::details;
 
+// ---------------------------------------------------------------------------------------
+// Receive update
 void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
                                  dtGame::ActorUpdateMessage& dest,
                                  dtDIS::SharedState* config) const
 {
+LOG_INFO("FullApplicator");
+
    PartialApplicator partial;
    partial(source, dest, config);
 
@@ -41,108 +45,10 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
       strAP->SetValue(source.getMarking().getCharacters());
    }
 
-
-   
-
    source.getEntityType();
-   
-   // Keep the undamaged model around...
-   const dtDAL::ResourceDescriptor* undamagedResource = NULL;
-   
-   //LCR: "Non-damaged actor" (aka RESOURCE_DAMAGE_OFF) property is set to the mesh specified in disActorTypeMapping.xml file
-   mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH );
-   if( mp != NULL )
-   {
-//		LOG_INFO("In Here");
-
-      if (config != NULL)
-      {
-		  const ResourceMapConfig& resources = config->GetHealthyResourceMap();
-		bool found = resources.GetMappedResource( source.getEntityType(), undamagedResource ) ;
-
-         //LCR: Use DIS Enum (0,0,0,0,0,0,0) for a default mapping to an random object of some sort
-         //Obviously for this to work the mapping must be in the mapping file and the mapped Mesh must available
-         if(!found ) 
-         {
-
-           DIS::EntityType defaultType;
-           defaultType.setCategory(0);
-           defaultType.setCountry(0);
-           defaultType.setDomain(0);
-           defaultType.setEntityKind(0);
-           defaultType.setExtra(0);
-           defaultType.setSpecific(0);
-           defaultType.setSubcategory(0);
-
-           found = resources.GetMappedResource( defaultType, undamagedResource) ;
-         }
-         //LCR
-
-         if( found )
-         {
-            dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>( mp );
-            nrp->SetValue(undamagedResource);
-         }
-      }
-   }
-
-   // Add damaged model
-    mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_ON , dtDAL::DataType::STATIC_MESH );
-	
-	if (mp != NULL)
-    {
-       if (config != NULL)
-       {
-		  const ResourceMapConfig& resources = config->GetDamagedResourceMap();
-		  const dtDAL::ResourceDescriptor* rdPtr = NULL;
-          bool found = resources.GetMappedResource(source.getEntityType(), rdPtr);
-
-	      if(found)
-          {
-			dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>(mp);
-            nrp->SetValue(rdPtr);
-          }
-		  // This entity type does not have a damaged model, so just use the undamaged model
-		  else
-		  {
-			  if (undamagedResource)
-			  {
-				  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(mp);
-				  parameter->SetValue(undamagedResource);
-			  }
-		  }
-      }
-   }
-
-   // Add destroyed model
-	mp = dest.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_DESTROYED , dtDAL::DataType::STATIC_MESH );
-	
-	if (mp != NULL)
-    {
-       if (config != NULL)
-       {
-		  const ResourceMapConfig& resources = config->GetDestroyedResourceMap();
-		  const dtDAL::ResourceDescriptor* rdPtr = NULL;
-          bool found = resources.GetMappedResource(source.getEntityType(), rdPtr);
-
-	      if(found)
-          {
-			dtDAL::NamedResourceParameter* nrp = static_cast<dtDAL::NamedResourceParameter*>(mp);
-            nrp->SetValue(rdPtr);
-          }
-		  // This entity type does not have a damaged model, so just use the undamaged model
-		  else
-		  {
-			  if (undamagedResource)
-			  {
-				  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(mp);
-				  parameter->SetValue(undamagedResource);
-			  }
-		  }
-      }
-   }
 
    std::string drm;
+
    if( ValueMap::GetDeadReckoningModelPropertyValue( source.getDeadReckoningParameters().getDeadReckoningAlgorithm(), drm ) )
    {
       mp = dest.AddUpdateParameter( dtDIS::EnginePropertyName::DEAD_RECKONING_ALGORITHM, dtDAL::DataType::ENUMERATION );
@@ -153,6 +59,36 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
       }
    }
 
+   const dtDAL::ActorType* actorType;
+   config->GetActorMap().GetMappedActor(source.getEntityType(), actorType);
+   if (actorType)
+	{
+	   if (actorType->GetName() == "VeldtGameMeshActor")
+	   {
+		   LOG_INFO("VeldtGameMeshActor");
+		   VeldtModelPartialApplicator modelApplicator;
+		   modelApplicator(source, dest, config);
+	   }
+	   else if (actorType->GetName() == "VeldtAnimationActor")
+	   {
+		   LOG_INFO("VeldtAnimationActor");
+		   VeldtAnimationPartialApplicator animationActor;
+		   animationActor(source, dest, config);
+	   }
+	}
+	else
+	{
+		LOG_INFO("No actor type here for: " + 
+			dtUtil::ToString(source.getEntityType().getEntityKind())
+			+ " " + dtUtil::ToString(source.getEntityType().getDomain())
+			+ " " + dtUtil::ToString(source.getEntityType().getCountry())
+			+ " " + dtUtil::ToString(source.getEntityType().getCategory())
+			+ " " + dtUtil::ToString(source.getEntityType().getSubcategory())
+			+ " " + dtUtil::ToString(source.getEntityType().getSpecific())
+			+ " " + dtUtil::ToString(source.getEntityType().getExtra()));
+	}
+
+#if 0
    // ground clamping property
    {
       bool doclamp(false);
@@ -176,9 +112,11 @@ void FullApplicator::operator ()(const DIS::EntityStatePdu& source,
          ///\todo should not have added the parameter, so remove it here, or change the code above.
       }
    }
+#endif
 }
 
 //////////////////////////////////////////////////////////////////////////
+// Send an update -------------------------------------------------------/
 void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
                                  const DIS::EntityID& eid,
                                  DIS::EntityStatePdu& dest,
@@ -312,8 +250,138 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
 //	  LOG_INFO("***** ENTITY APPEARANCE: " + dtUtil::ToString(appearance));
       dest.setEntityAppearance( appearance );
    }
+
+   // Put in articulated part parameters ----------------------------------
 }
 
+// ---------------------------------------------------------------
+// Veldt Animation Partial Applicator - Receive
+void VeldtAnimationPartialApplicator::operator()(const DIS::EntityStatePdu& sourcePdu,
+                                    dtGame::ActorUpdateMessage& gameMessage,
+                                    dtDIS::SharedState* sharedState) 
+{
+	if (!sharedState)
+	{
+		LOG_ERROR("No Shared State.");
+		return;
+	}
+
+	dtDAL::NamedParameter* namedParam;
+
+	const dtDAL::ResourceDescriptor* animationModel = NULL;
+
+	namedParam = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_ANIMATION_MODEL, dtDAL::DataType::SKELETAL_MESH);
+
+	if (namedParam)
+	{
+		const ResourceMapConfig& resources = sharedState->GetAnimationResourceMap();
+		
+		if (resources.GetMappedResource(sourcePdu.getEntityType(), animationModel))
+		{
+			dtDAL::NamedResourceParameter* resourceParam = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+			resourceParam->SetValue(animationModel);
+		}
+	}
+}
+
+// ---------------------------------------------------------------
+// Veldt Model Partial Applicator - Receive
+void VeldtModelPartialApplicator::operator()(const DIS::EntityStatePdu& sourcePdu,
+                                    dtGame::ActorUpdateMessage& gameMessage,
+                                    dtDIS::SharedState* sharedState) 
+{
+	if (!sharedState)
+	{
+		LOG_ERROR("No shared state");
+		return;
+	}
+
+	dtDAL::NamedParameter* namedParam;
+
+	// Keep the undamaged model around...
+   const dtDAL::ResourceDescriptor* undamagedResource = NULL;
+   
+   namedParam = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_OFF , dtDAL::DataType::STATIC_MESH);
+   if (namedParam)
+   {
+		const ResourceMapConfig& resources = sharedState->GetHealthyResourceMap();
+		bool found = resources.GetMappedResource(sourcePdu.getEntityType(), undamagedResource);
+
+        //LCR: Use DIS Enum (0,0,0,0,0,0,0) for a default mapping to an random object of some sort
+        //Obviously for this to work the mapping must be in the mapping file and the mapped Mesh must available
+        if( !found ) 
+        {
+           DIS::EntityType defaultType;
+           defaultType.setCategory(0);
+           defaultType.setCountry(0);
+           defaultType.setDomain(0);
+           defaultType.setEntityKind(0);
+           defaultType.setExtra(0);
+           defaultType.setSpecific(0);
+           defaultType.setSubcategory(0);
+
+           found = resources.GetMappedResource(defaultType, undamagedResource) ;
+         }
+         //LCR
+
+         if (found)
+         {
+            dtDAL::NamedResourceParameter* resourceParam = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+            resourceParam->SetValue(undamagedResource);
+		 }   
+   }
+
+   // Add damaged model
+    namedParam = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_ON , dtDAL::DataType::STATIC_MESH);
+	
+	if (namedParam)
+    {
+       const ResourceMapConfig& resources = sharedState->GetDamagedResourceMap();
+	   
+	   const dtDAL::ResourceDescriptor* descriptor = NULL;
+       bool found = resources.GetMappedResource(sourcePdu.getEntityType(), descriptor);
+
+	   if(found)
+       {
+	       dtDAL::NamedResourceParameter* resourceParam = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+           resourceParam->SetValue(descriptor);
+       }
+	   // This entity type does not have a damaged model, so just use the undamaged model
+	   else
+	   {
+	       if (undamagedResource)
+		   {
+			  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+			  parameter->SetValue(undamagedResource);
+		  }
+	  }
+   }
+
+   // Add destroyed model
+	namedParam = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::RESOURCE_DAMAGE_DESTROYED , dtDAL::DataType::STATIC_MESH);
+	
+	if (namedParam)
+    {
+       const ResourceMapConfig& resources = sharedState->GetDestroyedResourceMap();
+	   const dtDAL::ResourceDescriptor* descriptor = NULL;
+       bool found = resources.GetMappedResource(sourcePdu.getEntityType(), descriptor);
+
+	   if(found)
+       {
+			dtDAL::NamedResourceParameter* resourceParam = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+            resourceParam->SetValue(descriptor);
+       }
+	   // This entity type does not have a damaged model, so just use the undamaged model
+	   else
+	   {
+		  if (undamagedResource)
+		  {
+				  dtDAL::NamedResourceParameter* parameter = static_cast<dtDAL::NamedResourceParameter*>(namedParam);
+				  parameter->SetValue(undamagedResource);
+		  }
+	   }
+   }
+}
 
 ///\todo use dtUtil::Coordinates::ConvertToLocalRotation for ENTITY_ORIENTATION.
 ///\todo implement dtHLAGM::RPRParameterTranslator::MapFromVelocityVectorToMessageParam for ENTITY_LINEARY_VELOCITY.
@@ -528,3 +596,4 @@ void PartialApplicator::AddStringParam(const std::string& name, const std::strin
    param->SetValue( value );
    parent->AddParameter( *param );
 }
+

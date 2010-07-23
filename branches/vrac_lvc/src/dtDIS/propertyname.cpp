@@ -28,6 +28,7 @@ namespace dtDIS
    dtUtil::RefString EnginePropertyName::RESOURCE_DAMAGE_OFF       ("Non-damaged actor");
    dtUtil::RefString EnginePropertyName::RESOURCE_DAMAGE_ON        ("Damaged actor");
    dtUtil::RefString EnginePropertyName::RESOURCE_DAMAGE_DESTROYED ("Destroyed actor");
+   dtUtil::RefString EnginePropertyName::RESOURCE_ANIMATION_MODEL ("Skeletal Mesh");
 
    ///\todo this only uses the substring 'Parameter' because dvte::IG::Entity needs it.
    dtUtil::RefString EnginePropertyName::ARTICULATION              ("ArticulatedParameter");

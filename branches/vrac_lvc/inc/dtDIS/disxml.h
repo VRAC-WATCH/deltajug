@@ -34,7 +34,6 @@
 #include <dtCore/refptr.h>                  // for member
 #include <dtDIS/sharedstate.h>              // for member
 
-
 namespace dtDIS
 {
    class SharedState;
@@ -141,6 +140,7 @@ namespace dtDIS
       static const char NODE_ACTORDATA_RESOURCE_HEALTHY[];
 	  static const char NODE_ACTORDATA_RESOURCE_DAMAGED[];
 	  static const char NODE_ACTORDATA_RESOURCE_DESTROYED[];
+	  static const char NODE_ACTORDATA_RESOURCE_ANIMATION_MODEL[];
 
       static const char ATTRIBUTE_RESOURCE_RENDERSUITE[];
       static const char ATTRIBUTE_RESOURCE_GROUP[];
@@ -206,6 +206,7 @@ namespace dtDIS
 		 ACTORDATA_RESOURCE_DAMAGED,
 		 ACTORDATA_RESOURCE_DESTROYED,
          ACTORDATA_RESOURCE_ACTORPROPERTY,
+		 ACTORDATA_RESOURCE_ANIMATION_MODEL,
          PROPERTY_NAMES,
          ENTITY_LOCATION,
          ENTITY_ORIENTATION,
@@ -216,7 +217,8 @@ namespace dtDIS
          ENTITY_GROUND_CLAMP,
          ENTITY_NON_DAMAGED,
          ENTITY_DAMAGED,
-         ENTITY_DESTROYED
+         ENTITY_DESTROYED,
+		 ENTITY_ANIMATION_MODEL
       };
 
       typedef std::stack<Nodes> NodeStack;
@@ -229,7 +231,9 @@ namespace dtDIS
       std::string mCurrentResourceHealthy;
 	  std::string mCurrentResourceDamaged;
 	  std::string mCurrentResourceDestroyed;
+	  std::string mCurrentAnimationModel;
    };
 }
 
 #endif // __DELTA_DTDIS_DISXML_H__
+
