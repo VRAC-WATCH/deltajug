@@ -127,6 +127,7 @@ void MasterComponent::OnPluginUnloaded(PluginManager::LibraryRegistry::value_typ
 }
 
 void MasterComponent::CheckForDefunctEntities() {
+
 	double time = this->GetGameManager()->GetSimulationTime();
 	mTimeOutDelta += time;
 
@@ -141,18 +142,27 @@ void MasterComponent::CheckForDefunctEntities() {
 		if (!timedOutList.empty()) {
 
 		   for (size_t i = 0; i < timedOutList.size(); ++i) {
-			   dtDAL::ActorProxy* proxy = this->GetGameManager()->FindActorById(timedOutList[i]);
+
+			   dtDAL::ActorProxy* proxy = this->GetGameManager()->FindActorById( timedOutList[i] );
 			   
-			   if (proxy) {
- 					// SB TODO - maybe see if we can tie this in with the delete
-				    // call
+			   if ( proxy ) {
+
+ 					// SB TODO - maybe see if we can tie this in with the delete call
 				   mConfig->GetActorUpdateMap().Remove(timedOutList[i]);
-					this->GetGameManager()->DeleteActor(*proxy);
+				   
+				   //Remove from DIS Entity List based on Timeout
+				   const DIS::EntityID* id = mConfig->GetActiveEntityControl().GetEntity(timedOutList[i]);
+				   //must copy the id before passing it in to the RemoveEntity call
+				   DIS::EntityID idCopy = *id;
+				   mConfig->GetActiveEntityControl().RemoveEntity(idCopy, timedOutList[i]);
+
+				   this->GetGameManager()->DeleteActor(*proxy);
 			   }
 		   }
 	   }
 	}
 }
+
 
 ///\todo should it handle a pause message, by not updating the incoming or outgoing network classes?
 void MasterComponent::ProcessMessage(const dtGame::Message& msg)
@@ -178,15 +188,12 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          }
 
          if ( ds.size() > 0 )
-         {
-			 //LOG_INFO("mConnection.send()");
-            //LCR: Here is where PDU get sent
-            
+         {			
+            //LCR: Here is where PDU get sent            
 			mConnection.Send( &(ds[0]), ds.size() );        
             //LOG_INFO("Sent PDU");
             //LCR
-            mOutgoingMessage.ClearData();
-        }        
+            mOutgoingMessage.ClearData();        }        
       }
    }
    //LCR
@@ -202,16 +209,25 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
       const unsigned int MTU = 1500;
       char buffer[MTU];
 
-     size_t recvd(0);
+      bool done = false;
 
-//	  LOG_INFO("*ON RECEIVE* sizeof buffer: " + dtUtil::ToString(sizeof buffer));
-//	  LOG_INFO("*ON RECEIVE* MTU: " + dtUtil::ToString(MTU));
-
-      recvd = mConnection.Receive(buffer , MTU);
-      
-	  if (recvd != 0)
+      while(!done)
       {
-         mIncomingMessage.Process( buffer , recvd , DIS::BIG );
+         size_t recvd(0);
+
+    //	  LOG_INFO("*ON RECEIVE* sizeof buffer: " + dtUtil::ToString(sizeof buffer));
+    //	  LOG_INFO("*ON RECEIVE* MTU: " + dtUtil::ToString(MTU));
+
+          recvd = mConnection.Receive(buffer , MTU);
+          
+	      if (recvd != 0)
+          {
+             mIncomingMessage.Process( buffer , recvd , DIS::BIG );
+          }
+          else
+          {
+              done = true;
+          }
       }
 
       //LCR: The above mConnection.Receive code seems like it should be in a loop

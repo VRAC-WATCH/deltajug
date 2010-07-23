@@ -78,6 +78,8 @@ namespace dtDIS
       static dtUtil::RefString RESOURCE_DAMAGE_ON;
       static dtUtil::RefString RESOURCE_DAMAGE_DESTROYED;
 
+	  static dtUtil::RefString RESOURCE_ANIMATION_MODEL;
+
       static dtUtil::RefString ARTICULATION;
       static dtUtil::RefString DOF_NODE_NAME;
    } ;

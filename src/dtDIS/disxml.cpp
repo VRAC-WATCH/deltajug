@@ -206,6 +206,7 @@ const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_HEALTHY[] = {"He
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DAMAGED[] = {"Damaged\0"};
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESTROYED[] = {"Destroyed\0"};
 const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ACTORPROPERTY[] = {"ActorProperty\0"};
+const char details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ANIMATION_MODEL[] = {"AnimationModel\0"};
 
 const char details::XMLEntityMapSchema::ATTRIBUTE_RESOURCE_GROUP[] = {"Group\0"};
 const char details::XMLEntityMapSchema::ATTRIBUTE_RESOURCE_RENDERSUITE[] = {"RenderSuite\0"};
@@ -228,6 +229,7 @@ EntityMapXMLHandler::EntityMapXMLHandler(SharedState* config)
    , mCurrentResourceHealthy()
    , mCurrentResourceDamaged()
    , mCurrentResourceDestroyed()
+   , mCurrentAnimationModel()
 {
 }
 
@@ -333,6 +335,12 @@ void EntityMapXMLHandler::characters(const XMLCh* const chars, const unsigned in
       } break;
 
 
+   case ACTORDATA_RESOURCE_ANIMATION_MODEL:
+	   {
+		   mCurrentAnimationModel = cstr;
+	   }
+	   break;
+
    case PROPERTY_NAMES:
       {
       } break;
@@ -378,6 +386,11 @@ void EntityMapXMLHandler::characters(const XMLCh* const chars, const unsigned in
       {
          dtDIS::EnginePropertyName::RESOURCE_DAMAGE_DESTROYED = std::string(cstr);
       } break;
+   case ENTITY_ANIMATION_MODEL:
+	   {
+		   dtDIS::EnginePropertyName::RESOURCE_ANIMATION_MODEL = std::string(cstr);
+	   }
+	   break;
    default:
       {
          LOG_ERROR("Unsupported XML Element type, of value: " + dtUtil::ToString(mNodeStack.top()) )
@@ -435,9 +448,21 @@ void EntityMapXMLHandler::endElement(const XMLCh* const uri,const XMLCh* const l
 			}
 		}
 
+		if (!mCurrentAnimationModel.empty())
+		{
+			dtDAL::ResourceDescriptor animationDescriptor(mCurrentAnimationModel);
+			ResourceMapConfig& animationMap = mSharedState->GetAnimationResourceMap();
+
+			if (!animationMap.AddResourceMapping(mCurrentEntityType, animationDescriptor))
+			{
+				LOG_ERROR("DIS Entity was not mapped for ANIMATION resource with identifier: " + mCurrentAnimationModel)
+			}
+		}
+
          mCurrentResourceHealthy.clear();
 		 mCurrentResourceDamaged.clear();
 		 mCurrentResourceDestroyed.clear();
+		 mCurrentAnimationModel.clear();
       } 
       break;
 
@@ -514,6 +539,10 @@ void EntityMapXMLHandler::startElement(const XMLCh* const uri,const XMLCh* const
    else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_DESTROYED) )
    {
       mNodeStack.push( ACTORDATA_RESOURCE_DESTROYED );
+   }
+   else if (XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ANIMATION_MODEL))
+   {
+	   mNodeStack.push(ACTORDATA_RESOURCE_ANIMATION_MODEL);
    }
    else if( XMLString::equals(cstr, dtDIS::details::XMLEntityMapSchema::NODE_ACTORDATA_RESOURCE_ACTORPROPERTY) )
    {
