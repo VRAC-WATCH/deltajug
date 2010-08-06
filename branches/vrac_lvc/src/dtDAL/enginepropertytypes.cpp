@@ -407,10 +407,12 @@ namespace dtDAL
          LOG_WARNING("SetValue has been called on a property that is read only.");
          return;
       }
-
       mProxy->SetResource(GetName(), value);
+      
       if (value == NULL)
+      {
          SetPropFunctor("");
+         }
       else
       {
          try
@@ -420,7 +422,7 @@ namespace dtDAL
                dtUtil::Log::GetInstance("EnginePropertyTypes.h").LogMessage(dtUtil::Log::LOG_DEBUG,
                                                                             __FUNCTION__, __LINE__,
                                                                             "Path to resource is: %s",
-                                                                            path.c_str());
+                                                                            path.c_str());\
             SetPropFunctor(path);
          }
          catch(const dtUtil::Exception& ex)

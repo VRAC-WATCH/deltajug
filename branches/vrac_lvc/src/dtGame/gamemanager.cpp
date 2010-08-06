@@ -472,7 +472,6 @@ namespace dtGame
       dtCore::RefPtr<TickMessage> tick;
       GetMessageFactory().CreateMessage(MessageType::TICK_LOCAL, tick);
       PopulateTickMessage(*tick, deltaSimTime, deltaRealTime, simulationTime);
-
       dtCore::RefPtr<TickMessage> tickRemote;
       GetMessageFactory().CreateMessage(MessageType::TICK_REMOTE, tickRemote);
       PopulateTickMessage(*tickRemote, deltaSimTime, deltaRealTime, simulationTime);
@@ -482,7 +481,6 @@ namespace dtGame
 
       ProcessTimers(mRealTimeTimers, GetRealClockTime());
       ProcessTimers(mSimulationTimers, dtCore::Timer_t(GetSimTimeSinceStartup() * 1000000.0));
-
       DoSendMessages();
 
       dtCore::RefPtr<TickMessage> tickEnd;
@@ -490,7 +488,6 @@ namespace dtGame
       PopulateTickMessage(*tickEnd, deltaSimTime, deltaRealTime, simulationTime);
 
       DoSendMessageToComponents(*tickEnd);
-
       RemoveDeletedActors();
 
       mGMImpl->mGMStatistics.FragmentTimeDump(frameTickStart, *this);
@@ -649,7 +646,6 @@ namespace dtGame
    void GameManager::DoSendMessage(const Message& message)
    {
       DoSendMessageToComponents(message);
-
       InvokeGlobalInvokables(message);
 
       // ABOUT ACTOR - The actor itself and others registered against a particular actor

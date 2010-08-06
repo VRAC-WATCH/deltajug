@@ -589,7 +589,6 @@ namespace dtCore
 
          double userData[2] = { mSimDT, mRealDT };
          SendMessage(MESSAGE_PRE_FRAME, userData);
-
          mSystemImpl->EndStatTimer(MESSAGE_PRE_FRAME);
       }
    }

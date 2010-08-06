@@ -72,6 +72,8 @@ bool XercesParser::Parse(const std::string& datafile,
       mParser->setContentHandler(&handler);
       mParser->setErrorHandler(&xmlerror);
 
+	  //LOG_INFO("STILL ALIVE 1");
+
       if (!schemafile.empty())
       {
          std::string schema = osgDB::findDataFile(schemafile);
@@ -81,7 +83,7 @@ bool XercesParser::Parse(const std::string& datafile,
             LOG_WARNING("Scheme file, " + schemafile + ", not found, check your DELTA_DATA environment variable, schema checking disabled.")
          }
          else   // turn on schema checking
-         {        
+         {       
 			 //LOG_INFO("STILL ALIVE 2");
             // In some cases, schema will contain a url that is
             // relative to the current working directory which

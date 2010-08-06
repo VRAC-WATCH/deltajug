@@ -7,44 +7,35 @@ namespace dtGame
 
 	//Create Parameter Names all data tracked message will contain
 	const std::string TrackedMessage::ID_PARAMETER = "ID";
-	const std::string TrackedMessage::MATRIX00_PARAMETER = "Matrix_00";
-	const std::string TrackedMessage::MATRIX01_PARAMETER = "Matrix_01";
-	const std::string TrackedMessage::MATRIX02_PARAMETER = "Matrix_02";
-	const std::string TrackedMessage::MATRIX03_PARAMETER = "Matrix_03";
-	const std::string TrackedMessage::MATRIX10_PARAMETER = "Matrix_10";
-	const std::string TrackedMessage::MATRIX11_PARAMETER = "Matrix_11";
-	const std::string TrackedMessage::MATRIX12_PARAMETER = "Matrix_13";
-	const std::string TrackedMessage::MATRIX13_PARAMETER = "Matrix_14";
-	const std::string TrackedMessage::MATRIX20_PARAMETER = "Matrix_20";
-	const std::string TrackedMessage::MATRIX21_PARAMETER = "Matrix_21";
-	const std::string TrackedMessage::MATRIX22_PARAMETER = "Matrix_22";
-	const std::string TrackedMessage::MATRIX23_PARAMETER = "Matrix_23";
-	const std::string TrackedMessage::MATRIX30_PARAMETER = "Matrix_30";
-	const std::string TrackedMessage::MATRIX31_PARAMETER = "Matrix_31";
-	const std::string TrackedMessage::MATRIX32_PARAMETER = "Matrix_32";	
-	const std::string TrackedMessage::MATRIX33_PARAMETER = "Matrix_33";
+	const std::string TrackedMessage::FIRE_PARAMETER = "FIRE";
+	
+	const std::string TrackedMessage::ACT_TRANS_PARAMETER = "Actor Translation";
+	const std::string TrackedMessage::ACT_ROT_PARAMETER = "Actor Rotation";
+	const std::string TrackedMessage::ACT_ANG_PARAMETER = "Actor Angle";
+	
+	const std::string TrackedMessage::GUN_TRANS_PARAMETER = "Gun Translation";
+	const std::string TrackedMessage::GUN_ROT_PARAMETER = "Gun Rotation";
+	const std::string TrackedMessage::GUN_ANG_PARAMETER = "Gun Angle";
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	TrackedMessage::TrackedMessage()
 	{
 		//Add parameters TrackedMessage
 		AddParameter(new dtGame::DoubleMessageParameter(ID_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX00_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX01_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX02_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX03_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX10_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX11_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX12_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX13_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX20_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX21_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX22_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX23_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX30_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX31_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX32_PARAMETER));
-		AddParameter(new dtGame::DoubleMessageParameter(MATRIX33_PARAMETER));
+		AddParameter(new dtGame::BooleanMessageParameter(FIRE_PARAMETER));
+		
+		AddParameter(new dtGame::Vec3fMessageParameter(ACT_TRANS_PARAMETER));
+		AddParameter(new dtGame::Vec3fMessageParameter(ACT_ROT_PARAMETER));
+		AddParameter(new dtGame::DoubleMessageParameter(ACT_ANG_PARAMETER));
+		
+		AddParameter(new dtGame::Vec3fMessageParameter(GUN_TRANS_PARAMETER));
+		AddParameter(new dtGame::Vec3fMessageParameter(GUN_ROT_PARAMETER));
+		AddParameter(new dtGame::DoubleMessageParameter(GUN_ANG_PARAMETER));
+		
+		//Initiate Fire parameter to false
+		bool fire = false;
+		dtGame::BooleanMessageParameter* param = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(FIRE_PARAMETER));
+		param->SetValue(fire);
 
 	}	
 
@@ -55,257 +46,123 @@ namespace dtGame
 	}
 	
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	
 	void TrackedMessage::SetID(const int& Id)
 	{
 		dtGame::IntMessageParameter* param = static_cast<dtGame::IntMessageParameter*>(GetParameter(ID_PARAMETER));
 		param->SetValue(Id);
 	}
-	
+		
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	void TrackedMessage::SetMatrix_00(const double& matrix_00)
+	void TrackedMessage::SetFire(const bool& fire)
 	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX00_PARAMETER));
-		param->SetValue(matrix_00);
+		dtGame::BooleanMessageParameter* param = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(FIRE_PARAMETER));
+		param->SetValue(fire);
 	}
+			
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	void TrackedMessage::SetActorTrans(const osg::Vec3f& actTrans)
+	{
+		dtGame::Vec3fMessageParameter* param = static_cast<dtGame::Vec3fMessageParameter*>(GetParameter(ACT_TRANS_PARAMETER));
+		param->SetValue(actTrans);
+	}
+			
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void TrackedMessage::SetActorRot(const osg::Vec3f& actRot)
+	{
+		dtGame::Vec3fMessageParameter* param = static_cast<dtGame::Vec3fMessageParameter*>(GetParameter(ACT_ROT_PARAMETER));
+		param->SetValue(actRot);
+	}
+			
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void TrackedMessage::SetActorAng(const double& actAng)
+	{
+		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(ACT_ANG_PARAMETER));
+		param->SetValue(actAng);
+	}
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	void TrackedMessage::SetMatrix_01(const double& matrix_01)
+	void TrackedMessage::SetGunTrans(const osg::Vec3f& gunTrans)
 	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX01_PARAMETER));
-		param->SetValue(matrix_01);
+		dtGame::Vec3fMessageParameter* param = static_cast<dtGame::Vec3fMessageParameter*>(GetParameter(GUN_TRANS_PARAMETER));
+		param->SetValue(gunTrans);
 	}
+			
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+	void TrackedMessage::SetGunRot(const osg::Vec3f& gunRot)
+	{
+		dtGame::Vec3fMessageParameter* param = static_cast<dtGame::Vec3fMessageParameter*>(GetParameter(GUN_ROT_PARAMETER));
+		param->SetValue(gunRot);
+	}
+			
+	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+	void TrackedMessage::SetGunAng(const double& gunAng)
+	{
+		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(GUN_ANG_PARAMETER));
+		param->SetValue(gunAng);
+	}
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	
-	void TrackedMessage::SetMatrix_02(const double& matrix_02)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX02_PARAMETER));
-		param->SetValue(matrix_02);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_03(const double& matrix_03)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX03_PARAMETER));
-		param->SetValue(matrix_03);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_10(const double& matrix_10)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX10_PARAMETER));
-		param->SetValue(matrix_10);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_11(const double& matrix_11)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX11_PARAMETER));
-		param->SetValue(matrix_11);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_12(const double& matrix_12)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX12_PARAMETER));
-		param->SetValue(matrix_12);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_13(const double& matrix_13)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX13_PARAMETER));
-		param->SetValue(matrix_13);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_20(const double& matrix_20)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX20_PARAMETER));
-		param->SetValue(matrix_20);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_21(const double& matrix_21)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX21_PARAMETER));
-		param->SetValue(matrix_21);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_22(const double& matrix_22)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX22_PARAMETER));
-		param->SetValue(matrix_22);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_23(const double& matrix_23)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX23_PARAMETER));
-		param->SetValue(matrix_23);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_30(const double& matrix_30)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX30_PARAMETER));
-		param->SetValue(matrix_30);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_31(const double& matrix_31)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX31_PARAMETER));
-		param->SetValue(matrix_31);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_32(const double& matrix_32)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX32_PARAMETER));
-		param->SetValue(matrix_32);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	
-	void TrackedMessage::SetMatrix_33(const double& matrix_33)
-	{
-		dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(MATRIX33_PARAMETER));
-		param->SetValue(matrix_33);
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	const int TrackedMessage::GetID() const
+	const int TrackedMessage::TrackedMessage::GetID() const
 	{
 		return static_cast<const dtGame::IntMessageParameter*>(GetParameter(ID_PARAMETER))->GetValue();
 	}
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_00() const
+	const bool TrackedMessage::TrackedMessage::GetFire() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX00_PARAMETER))->GetValue();
+		return static_cast<const dtGame::BooleanMessageParameter*>(GetParameter(FIRE_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_01() const
+	const osg::Vec3f TrackedMessage::GetActorTrans() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX01_PARAMETER))->GetValue();
+		return static_cast<const dtGame::Vec3fMessageParameter*>(GetParameter(ACT_TRANS_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_02() const
+	const osg::Vec3f TrackedMessage::GetActorRot() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX02_PARAMETER))->GetValue();
+		return static_cast<const dtGame::Vec3fMessageParameter*>(GetParameter(ACT_ROT_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_03() const
+	const double TrackedMessage::GetActorAng() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX03_PARAMETER))->GetValue();
+		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(ACT_ANG_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_10() const
+	const osg::Vec3f TrackedMessage::GetGunTrans() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX10_PARAMETER))->GetValue();
+		return static_cast<const dtGame::Vec3fMessageParameter*>(GetParameter(GUN_TRANS_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_11() const
+	const osg::Vec3f TrackedMessage::GetGunRot() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX11_PARAMETER))->GetValue();
+		return static_cast<const dtGame::Vec3fMessageParameter*>(GetParameter(GUN_ROT_PARAMETER))->GetValue();
 	}
-
+			
 	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-	const double TrackedMessage::GetMatrix_12() const
+	const double TrackedMessage::GetGunAng() const
 	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX12_PARAMETER))->GetValue();
+		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(GUN_ANG_PARAMETER))->GetValue();
 	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_13() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX13_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_20() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX20_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_21() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX21_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_22() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX22_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_23() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX23_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_30() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX30_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_31() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX31_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_32() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX32_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-	const double TrackedMessage::GetMatrix_33() const
-	{
-		return static_cast<const dtGame::DoubleMessageParameter*>(GetParameter(MATRIX33_PARAMETER))->GetValue();
-	}
-
-	//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 }

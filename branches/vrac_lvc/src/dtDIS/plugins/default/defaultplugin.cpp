@@ -19,6 +19,7 @@
 #include <dtDIS/plugins/default/removeentityprocessor.h>   
 #include <dtDIS/plugins/default/actorupdatetoentitystate.h>
 
+
 using namespace dtDIS;
 
 DefaultPlugin::DefaultPlugin()
