@@ -29,9 +29,7 @@
 #include <dtGame/exceptionenum.h>
 #include <dtDAL/enginepropertytypes.h>
 #include <dtDAL/actortype.h>
-#include <dtUtil/log.h>
-
-#include <iostream>
+#include <dtUtil/log.h>
 
 using namespace dtCore;
 
@@ -186,8 +184,7 @@ namespace dtGame
       {
          LOG_ERROR("The about actor is invalid");
          return;
-      }
-
+      }
       ap->ApplyActorUpdate(msg);
    }
 
@@ -210,6 +207,7 @@ namespace dtGame
       GameActorProxy* proxy = GetGameManager()->FindGameActorById(msg.GetAboutActorId());
       if (proxy == NULL)
       {
+      
          // just to make sure the message is actually remote
          if (msg.GetSource() != GetGameManager()->GetMachineInfo())
          {

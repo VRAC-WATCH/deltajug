@@ -74,19 +74,19 @@ namespace dtCore
 
    ///////////////////////////////////////////////////////////////////////////////
    const std::string& ShaderProgram::GetGeometryCacheKey()
-   { 
+   {
        return mGeometryCacheKey;
    }
 
    ///////////////////////////////////////////////////////////////////////////////
    const std::string& ShaderProgram::GetVertexCacheKey()
-   { 
+   {
       return mVertexCacheKey;
    }
    
    ///////////////////////////////////////////////////////////////////////////////
    const std::string& ShaderProgram::GetFragmentCacheKey()
-   { 
+   {
       return mFragmentCacheKey;
    }
 
@@ -205,24 +205,25 @@ namespace dtCore
       }
    }
 
+
    ///////////////////////////////////////////////////////////////////////////////
    void ShaderProgram::AddGeometryShader(const std::string& fileName)
    {
-	   // Geometry source is allowed to be empty - but, if a filename is set, the file needs to exist.
-	   if (!fileName.empty())
-	   {
-		   std::string path = dtCore::FindFileInPathList(fileName);
-		   if (path.empty())
-		   {
-			   throw dtUtil::Exception(ShaderException::SHADER_SOURCE_ERROR,"Could not find shader source: " +
-				   fileName + " in path list.", __FILE__, __LINE__);
-		   }
-		   else
-		   {
-			   mGeometryShaderFileName.push_back(fileName);
-			   mGeometryCacheKey += fileName;
-		   }
-	   }
+           // Geometry source is allowed to be empty - but, if a filename is set, the file needs to exist.
+           if (!fileName.empty())
+           {
+                   std::string path = dtCore::FindFileInPathList(fileName);
+                   if (path.empty())
+                   {
+                           throw dtUtil::Exception(ShaderException::SHADER_SOURCE_ERROR,"Could not find shader source: " +
+                                   fileName + " in path list.", __FILE__, __LINE__);
+                   }
+                   else
+                   {
+                           mGeometryShaderFileName.push_back(fileName);
+                           mGeometryCacheKey += fileName;
+                   }
+           }
    }
 
    ///////////////////////////////////////////////////////////////////////////////
@@ -299,11 +300,11 @@ namespace dtCore
       newShader->mVertexShaderFileName = GetVertexShaders();
       newShader->mFragmentShaderFileName = GetFragmentShaders();
       newShader->mGLSLProgram = mGLSLProgram;
-	   newShader->mGeometryCacheKey = mGeometryCacheKey;
+           newShader->mGeometryCacheKey = mGeometryCacheKey;
       newShader->mVertexCacheKey = mVertexCacheKey;
       newShader->mFragmentCacheKey = mFragmentCacheKey;
 
-      // copy all of the parameters. 
+      // copy all of the parameters.
       std::map<std::string,dtCore::RefPtr<ShaderParameter> >::const_iterator paramItor;
       for (paramItor=mParameters.begin(); paramItor!=mParameters.end(); ++paramItor)
       {
@@ -316,3 +317,33 @@ namespace dtCore
       return newShader;
    }
 }
+
+Show details Hide details
+
+Change log
+r12 by CJNoon on Jun 01, 2010   Diff
+
+Creating a branch of the trunk for the
+VRAC LVC project.
+
+Go to: 	
+Publish your comments
+Double click a line to add a comment
+
+Older revisions
+r2 by CJNoon on Feb 22, 2010   Diff
+
+Importing source from Delta3D 2.4.0
+release.
+
+All revisions of this file
+
+File info
+Size: 10678 bytes, 318 lines
+View raw file
+
+File properties
+
+svn:executable
+    *
+

@@ -14,7 +14,6 @@
 #include <dtUtil/log.h>
 #include <cassert>
 
-
 #include <cal3d/corematerial.h>
 
 #include <dtAnim/ical3ddriver.h>

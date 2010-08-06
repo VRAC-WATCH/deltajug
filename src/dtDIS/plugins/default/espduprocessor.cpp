@@ -4,8 +4,7 @@
 #include <dtGame/gamemanager.h>
 
 #include <dtGame/actorupdatemessage.h>
-#include <DIS/EntityStatePdu.h>
-
+#include <DIS/EntityStatePdu.h>
 
 using namespace dtDIS;
 
@@ -173,7 +172,7 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
               "." + dtUtil::ToString((int)entityType.getSubcategory()) +
               "." + dtUtil::ToString((int)entityType.getSpecific()) + 
               "." + dtUtil::ToString((int)entityType.getExtra()));
-      
+
       dtCore::RefPtr<dtGame::ActorUpdateMessage> msg;
       mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_ACTOR_CREATED, msg);
 
@@ -206,12 +205,10 @@ void dtDIS::ESPduProcessor::CreateRemoteActor(const DIS::EntityStatePdu& pdu)
       
       dtDIS::details::FullApplicator copyToMsg;
       copyToMsg(pdu, *msg, mConfig);
-
       mGM->SendMessage(*msg);
 
       //store the ID for later retrieval
       mConfig->GetActiveEntityControl().AddEntity(pdu.getEntityID(), newActorID);
-
 
 	  this->UpdateActorUpdateTime(newActorID);
       //TODO SendPartialUpdate()?

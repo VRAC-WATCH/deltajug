@@ -202,6 +202,7 @@ namespace dtGame
       return mIsInGM;
    }
 
+
    /////////////////////////////////////////////////////////////////////////////
    void GameActorProxy::SetIsInGM(bool value)
    {
@@ -413,6 +414,7 @@ namespace dtGame
             SetName(nameInMessage);
       }
 
+
       std::vector<const MessageParameter*> params;
       msg.GetUpdateParameters(params);
 
@@ -612,6 +614,7 @@ namespace dtGame
          return itor->second.get();
       }
    }
+
 
    void GameActorProxy::GetInvokables(std::vector<Invokable*>& toFill)
    {
@@ -816,6 +819,7 @@ namespace dtGame
    ///////////////////////////////////////////
    const std::string GameActor::NULL_PROXY_ERROR("The actor proxy for a game actor is NULL.  This usually happens if the actor is held in RefPtr, but not the proxy.");
 
+
    ///////////////////////////////////////////////////////////////////////////////////////////////////////
    GameActor::GameActor(GameActorProxy& proxy)
       : mProxy(&proxy)
@@ -893,8 +897,8 @@ namespace dtGame
    void GameActor::SetShaderGroup(const std::string &groupName)
    {
       // Setting the shader group, when it didn't change can cause a massive
-      // hit on performance because it unassigns everything and will make a new 
-      // instance of the shader and all its params. Could also cause anomalies with 
+      // hit on performance because it unassigns everything and will make a new
+      // instance of the shader and all its params. Could also cause anomalies with
       // oscilating shader params.
       if (groupName != mShaderGroup)
       {

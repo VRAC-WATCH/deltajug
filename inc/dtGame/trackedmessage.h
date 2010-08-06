@@ -56,104 +56,50 @@ public:
 	//Set int representing the object's ID
 	void SetID(const int& Id);
 	
-	//Set double representing the transformation matrix at position row:0 col:0
-	void SetMatrix_00(const double& matrix_00);
+	//Set Boolean indicating whether the actor's gun's trigger was pulled
+	void SetFire(const bool& fire);
 	
-	//Set double representing the transformation matrix at position row:0 col:1
-	void SetMatrix_01(const double& matrix_01);
+	//Sets translation vector for actor
+	void SetActorTrans(const osg::Vec3f& trans);
 	
-	//Set double representing the transformation matrix at position row:0 col:2
-	void SetMatrix_02(const double& matrix_02);
+	//Sets rotation vector for actor
+	void SetActorRot(const osg::Vec3f& rot);
 	
-	//Set double representing the transformation matrix at position row:0 col:3
-	void SetMatrix_03(const double& matrix_03);
+	//Sets rotation angle belonging to rotation vector for actor
+	void SetActorAng(const double& ang);
 	
-	//Set double representing the transformation matrix at position row:1 col:0
-	void SetMatrix_10(const double& matrix_10);
+	//Sets translation vector for gun
+	void SetGunTrans(const osg::Vec3f& trans);
 	
-	//Set double representing the transformation matrix at position row:1 col:1
-	void SetMatrix_11(const double& matrix_11);
+	//Sets rotation vector for gun
+	void SetGunRot(const osg::Vec3f& rot);
 	
-	//Set double representing the transformation matrix at position row:1 col:2
-	void SetMatrix_12(const double& matrix_12);
-	
-	//Set double representing the transformation matrix at position row:1 col:3
-	void SetMatrix_13(const double& matrix_13);
-	
-	//Set double representing the transformation matrix at position row:2 col:0
-	void SetMatrix_20(const double& matrix_20);
-	
-	//Set double representing the transformation matrix at position row:2 col:1
-	void SetMatrix_21(const double& matrix_21);
-	
-	//Set double representing the transformation matrix at position row:2 col:2
-	void SetMatrix_22(const double& matrix_22);
-	
-	//Set double representing the transformation matrix at position row:2 col:3
-	void SetMatrix_23(const double& matrix_23);
-	
-	//Set double representing the transformation matrix at position row:3 col:0
-	void SetMatrix_30(const double& matrix_30);
-	
-	//Set double representing the transformation matrix at position row:3 col:1
-	void SetMatrix_31(const double& matrix_31);
-	
-	//Set double representing the transformation matrix at position row:3 col:2
-	void SetMatrix_32(const double& matrix_32);
-	
-	//Set double representing the transformation matrix at position row:3 col:3
-	void SetMatrix_33(const double& matrix_33);
+	//Sets rotation angle belonging to rotation vector for gun
+	void SetGunAng(const double& ang);
 	
 	//Return int representing the object's ID
 	const int GetID() const;
 	
-	//Return double representing transformation matrix at position row:0 col:0
-	const double GetMatrix_00() const;
-
-	//Return double representing transformation matrix at position row:0 col:1
-	const double GetMatrix_01() const;
-
-	//Return double representing transformation matrix at position row:0 col:2
-	const double GetMatrix_02() const;
-
-	//Return double representing transformation matrix at position row:0 col:3
-	const double GetMatrix_03() const;
-
-	//Return double representing transformation matrix at position row:1 col:0
-	const double GetMatrix_10() const;
-
-	//Return double representing transformation matrix at position row:1 col:1
-	const double GetMatrix_11() const;
-
-	//Return double representing transformation matrix at position row:1 col:2
-	const double GetMatrix_12() const;
-
-	//Return double representing transformation matrix at position row:1 col:3
-	const double GetMatrix_13() const;
-
-	//Return double representing transformation matrix at position row:2 col:0
-	const double GetMatrix_20() const;
-
-	//Return double representing transformation matrix at position row:2 col:1
-	const double GetMatrix_21() const;
-
-	//Return double representing transformation matrix at position row:2 col:2
-	const double GetMatrix_22() const;
-
-	//Return double representing transformation matrix at position row:2 col:3
-	const double GetMatrix_23() const;
-
-	//Return double representing transformation matrix at position row:3 col:0
-	const double GetMatrix_30() const;
-
-	//Return double representing transformation matrix at position row:3 col:1
-	const double GetMatrix_31() const;
-
-	//Return double representing transformation matrix at position row:3 col:2
-	const double GetMatrix_32() const;
-
-	//Return double representing transformation matrix at position row:3 col:3
-	const double GetMatrix_33() const;
+	//Returns Boolean which indicates whether actor's gun's trigger was pulled
+	const bool GetFire() const;
+	
+	//Returns translation vector for actor
+	const osg::Vec3f GetActorTrans() const;
+	
+	//Returns rotation vector for actor
+	const osg::Vec3f GetActorRot() const;
+	
+	//Returns rotation angle belonging to rotation vector for actor
+	const double GetActorAng() const;
+	
+	//Returns translation vector for gun
+	const osg::Vec3f GetGunTrans() const;
+	
+	//Returns rotation vector for gun
+	const osg::Vec3f GetGunRot() const;
+	
+	//Returns roation angle belonging to rotation vector for gun
+	const double GetGunAng() const;
 
 protected:
 	virtual ~TrackedMessage(void);
@@ -161,23 +107,16 @@ protected:
 private:
 	//Paramter identifiers for all data contained in message
 	static const std::string ID_PARAMETER;
-	static const std::string MATRIX00_PARAMETER;
-	static const std::string MATRIX01_PARAMETER;
-	static const std::string MATRIX02_PARAMETER;
-	static const std::string MATRIX03_PARAMETER;
-	static const std::string MATRIX10_PARAMETER;
-	static const std::string MATRIX11_PARAMETER;
-	static const std::string MATRIX12_PARAMETER;
-	static const std::string MATRIX13_PARAMETER;
-	static const std::string MATRIX20_PARAMETER;
-	static const std::string MATRIX21_PARAMETER;
-	static const std::string MATRIX22_PARAMETER;
-	static const std::string MATRIX23_PARAMETER;
-	static const std::string MATRIX30_PARAMETER;
-	static const std::string MATRIX31_PARAMETER;
-	static const std::string MATRIX32_PARAMETER;
-	static const std::string MATRIX33_PARAMETER;
-
+	static const std::string FIRE_PARAMETER;
+	
+	static const std::string ACT_TRANS_PARAMETER;
+	static const std::string ACT_ROT_PARAMETER;
+	static const std::string ACT_ANG_PARAMETER;
+	
+	static const std::string GUN_TRANS_PARAMETER;
+	static const std::string GUN_ROT_PARAMETER;
+	static const std::string GUN_ANG_PARAMETER;
+	
 };
 
 }
