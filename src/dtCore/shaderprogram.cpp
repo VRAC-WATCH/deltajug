@@ -317,33 +317,3 @@ namespace dtCore
       return newShader;
    }
 }
-
-Show details Hide details
-
-Change log
-r12 by CJNoon on Jun 01, 2010   Diff
-
-Creating a branch of the trunk for the
-VRAC LVC project.
-
-Go to: 	
-Publish your comments
-Double click a line to add a comment
-
-Older revisions
-r2 by CJNoon on Feb 22, 2010   Diff
-
-Importing source from Delta3D 2.4.0
-release.
-
-All revisions of this file
-
-File info
-Size: 10678 bytes, 318 lines
-View raw file
-
-File properties
-
-svn:executable
-    *
-
