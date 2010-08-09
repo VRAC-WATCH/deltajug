@@ -551,9 +551,15 @@ bool AnimNodeBuilder::SupportsSoftware() const
 bool AnimNodeBuilder::SupportsVertexBuffers() const
 {
    //see if we can support vertex buffer objects
-   osg::Drawable::getExtensions(0, true);
+   //osg::Drawable::getExtensions(0, true);
 
-   return (osg::isGLExtensionSupported(0, "GL_ARB_vertex_buffer_object"));
+   //return (osg::isGLExtensionSupported(0, "GL_ARB_vertex_buffer_object"));
+   
+   //We have overwritten this class because in late preframe it attempts to call
+   //openGL when there isnt an openGL instance.  We are simply returning true now
+   //since all computers runing this software will be properly configured.
+   
+   return true;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
