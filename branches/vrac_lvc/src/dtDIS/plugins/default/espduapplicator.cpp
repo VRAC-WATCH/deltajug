@@ -136,6 +136,53 @@ void FullApplicator::operator ()(const dtGame::ActorUpdateMessage& source,
    osg::Vec3 gameTranslation;
    osg::Vec3 disTranslation;
    
+   //LCR -- Force ID Hack (begin)
+   //We're hacking the force ID based on the country code.  This is not the correct way to handle this.
+  
+   //We'll come back and fix this if time permits
+   //USA USA Country Code (225) for friendly entities.
+   //Use Iraq, Iran, or Afghanistan country codes for enemy
+   //Use any other value for country code for neutral entities
+
+   enum DisForceEnum {
+        OTHER    = 0,
+        FRIENDLY = 1,
+        OPPOSING = 2,
+        NEUTRAL  = 3,
+   };
+
+   enum DisCountryEnum {
+       AFGHANISTAN = 1,
+       AUSTRALIA   = 13,
+       IRAN        = 101,
+       IRAQ        = 102,
+       UK          = 224,
+       USA         = 225,
+   };
+
+   int country = dest.getEntityType().getCountry();
+
+   //map country to force id 
+   switch (country) {
+
+       case AUSTRALIA:       
+       case USA:
+       case UK:          
+           dest.setForceId(FRIENDLY);
+        break;
+
+       case AFGHANISTAN:
+       case IRAN: 
+       case IRAQ:
+           dest.setForceId(OPPOSING);
+           break;
+
+       default: 
+           dest.setForceId(NEUTRAL);
+         break;
+   }
+   //LCR -- Force ID Hack (end)
+   
    // --- support the engine-core properties. --- //
    if (const dtGame::MessageParameter* mp = source.GetUpdateParameter(EnginePropertyName::ENTITY_LOCATION))
    {
