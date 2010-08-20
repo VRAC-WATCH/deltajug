@@ -30,16 +30,19 @@ DIS::Pdu* ActorUpdateToEntityState::Convert(const dtGame::Message& source)
    // fill a packet with data
 
    DIS::EntityID eid;
+   
    eid.setApplication(mConfig->GetApplicationID());
    eid.setSite(mConfig->GetSiteID());
 
-   //create the DIS entity ID by using some of the UniqueID
+    //create the DIS entity ID by using some of the UniqueID
    const dtCore::UniqueId &uniqueID = source.GetAboutActorId();
    const std::string idStr = uniqueID.ToString();
    char chars[4];
    for (int i=0; i<4; i++) {chars[i] = idStr[i];}
 
    eid.setEntity(strtol(&chars[0], NULL, 16));
+
+   
 
    // We know its true type since we created it in the this's ctor
    DIS::EntityStatePdu *downcastPdu = reinterpret_cast<DIS::EntityStatePdu*>(mPdu);
@@ -56,7 +59,22 @@ DIS::Pdu* ActorUpdateToEntityState::Convert(const dtGame::Message& source)
    //LCR: compute size of entity state (is this formula always correct?)
    downcastPdu->setLength( 144 + 16 * downcastPdu->getNumberOfArticulationParameters() );
    //LCR
+#if 1
+    // Add entity to DIS mapping
+   ActiveEntityControl& control = mConfig->GetActiveEntityControl();
 
+    if (!control.GetEntity(uniqueID))
+    {
+        LOG_ERROR("***** Want to add Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
+        control.AddEntity(eid, uniqueID);
+    }
+#if 0
+    else
+    {
+        LOG_ERROR("**** Actor already there: Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
+    }
+#endif
+#endif
    return mPdu;
 }
 
