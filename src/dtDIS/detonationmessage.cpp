@@ -21,15 +21,45 @@ DetonationMessageType::~DetonationMessageType()
 {
 }
 
+const std::string DetonationMessage::TARGET_HIT_PARAMETER = "DetonationTargetHit";
+const std::string DetonationMessage::TARGET_PARAMETER = "DetonationTarget";
 const std::string DetonationMessage::LOC_PARAMETER = "DetonationLocation";
 
 DetonationMessage::DetonationMessage()
 {
-	AddParameter(new dtGame::Vec3MessageParameter(LOC_PARAMETER));
+    AddParameter(new dtGame::BooleanMessageParameter(TARGET_HIT_PARAMETER));
+    AddParameter(new dtGame::StringMessageParameter(TARGET_PARAMETER));
+    AddParameter(new dtGame::Vec3MessageParameter(LOC_PARAMETER));
+
+    this->SetTargetHit(false);
 }
 
 DetonationMessage::~DetonationMessage(void)
 {
+}
+
+void DetonationMessage::SetTargetHit(bool hit)
+{
+   dtGame::BooleanMessageParameter* param = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(TARGET_HIT_PARAMETER));
+   param->SetValue(hit);
+}
+
+bool DetonationMessage::GetTargetHit() const
+{
+   return static_cast<const dtGame::BooleanMessageParameter*>(GetParameter(TARGET_HIT_PARAMETER))->GetValue();
+}
+
+void DetonationMessage::SetTarget(const dtCore::UniqueId& uuid)
+{
+   dtGame::StringMessageParameter* param = static_cast<dtGame::StringMessageParameter*>(GetParameter(TARGET_PARAMETER));
+   param->SetValue(uuid.ToString());
+}
+
+dtCore::UniqueId DetonationMessage::GetTarget() const
+{
+   std::string uuidString = static_cast<const dtGame::StringMessageParameter*>(GetParameter(TARGET_PARAMETER))->GetValue();
+   dtCore::UniqueId uuid(uuidString);
+   return uuid;
 }
 
 void DetonationMessage::SetLocation(const osg::Vec3& location)

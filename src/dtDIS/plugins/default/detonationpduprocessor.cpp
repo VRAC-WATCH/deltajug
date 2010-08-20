@@ -117,6 +117,18 @@ void DetonationPduProcessor::NotifyRemoteActor(const DIS::DetonationPdu& pdu, co
 
 	LOG_INFO("***** SENDING DETONATION MESSAGE ************");
 
+    DIS::EntityID targetEntityId = pdu.getTargetEntityID();
+    
+    const dtCore::UniqueId* targetActorId = mConfig->GetActiveEntityControl().GetActor(targetEntityId);
+    
+    // Check if the detonation hit somebody
+    if (targetActorId)
+    {
+        msg->SetTargetHit(true);
+        msg->SetTarget(*targetActorId);
+    }
+
+
    // send it
    mGM->SendMessage(*msg);
 }

@@ -25,7 +25,15 @@ void ESPduProcessor::Process(const DIS::Pdu& packet)
 
    if (mConfig == NULL) return;
 
-   const DIS::EntityStatePdu& pdu = static_cast<const DIS::EntityStatePdu&>(packet);
+    const DIS::EntityStatePdu& pdu = static_cast<const DIS::EntityStatePdu&>(packet);
+
+    if ((mConfig->GetApplicationID() == pdu.getEntityID().getApplication()) &&
+          (mConfig->GetSiteID() == pdu.getEntityID().getSite()))
+    {
+        return;
+    }
+
+   
 
    //LOG_INFO("Entity ID: " + dtUtil::ToString(pdu.getEntityID().getEntity()));
 
@@ -46,13 +54,14 @@ void ESPduProcessor::Process(const DIS::Pdu& packet)
    }
    else
    {
+    #if 0
       //looks like we received a packet that we sent.  Just ignore it and move on
       if ((mConfig->GetApplicationID() == pdu.getEntityID().getApplication()) &&
           (mConfig->GetSiteID() == pdu.getEntityID().getSite()))
       {
          return;
       }
-
+#endif
       CreateRemoteActor(pdu);
    }
 }
