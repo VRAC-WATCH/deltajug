@@ -269,7 +269,9 @@ void dtDIS::SharedState::SetCoordinateConverter(const dtUtil::Coordinates& coord
    //Ensure that the converter is setup to what dtDIS needs.  Incoming DIS is geocentric and
    //the local is Flat earth?
    mCoordConverter.SetIncomingCoordinateType(dtUtil::IncomingCoordinateType::GEOCENTRIC);
-   mCoordConverter.SetLocalCoordinateType(dtUtil::LocalCoordinateType::CARTESIAN_FLAT_EARTH);
+
+    // jschutz - Why was it forcing CARTESIAN_FLAT_EARTH. The previous comment didn't loock confident
+//   mCoordConverter.SetLocalCoordinateType(dtUtil::LocalCoordinateType::CARTESIAN_FLAT_EARTH);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
