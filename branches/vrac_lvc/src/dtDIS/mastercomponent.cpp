@@ -53,6 +53,9 @@ void MasterComponent::OnAddedToGM()
 {
    const ConnectionData& connect_data = mConfig->GetConnectionData();
 
+    // Register Detonation Message
+   DetonationMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
+
    // add the default "plugin"
    mDefaultPlugin->Start( mIncomingMessage, mOutgoingMessage, GetGameManager(), mConfig );
 
@@ -65,9 +68,6 @@ void MasterComponent::OnAddedToGM()
 
    // make a connection to the DIS multicast network
    mConnection.Connect( connect_data.port , connect_data.ip.c_str() );
-
-   // Register Detonation Message
-   DetonationMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
 }
 
 void MasterComponent::OnRemovedFromGM()
@@ -168,6 +168,36 @@ void MasterComponent::CheckForDefunctEntities() {
 void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 {
    const dtGame::MessageType& mt = msg.GetMessageType();
+
+   // Put detonations onto the wire
+   if (mt == dtDIS::DetonationMessageType::DETONATION)
+   {
+        // The sender of the message is the actor who shot the munition that triggered the detonation
+        dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById(msg.GetSendingActorId());
+    
+        // Avoid re-issuing events that arrived from remote actors
+        if (proxy->IsGameActorProxy() && !static_cast<dtGame::GameActorProxy*>(proxy)->IsRemote())
+        {
+            this->mOutgoingMessage.Handle(msg);
+            
+            //write the outgoing packets
+             const DIS::DataStream& ds = mOutgoingMessage.GetData();
+             const unsigned int MTU = 1500;
+             if( ds.size() > MTU )
+             {
+                LOG_WARNING("Network buffer is bigger than LAN supports.")
+             }
+    
+             if ( ds.size() > 0 )
+             {          
+                //LCR: Here is where PDU get sent            
+                mConnection.Send( &(ds[0]), ds.size() );        
+                //LOG_INFO("Sent PDU");
+                //LCR
+                mOutgoingMessage.ClearData();
+             }
+        }
+   }
 
    //LCR: Extract update info from message to send to network
    if( mt == dtGame::MessageType::INFO_ACTOR_UPDATED ) {

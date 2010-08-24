@@ -31,6 +31,13 @@ void DetonationPduProcessor::Process(const DIS::Pdu& packet)
    
    const DIS::DetonationPdu& pdu = static_cast<const DIS::DetonationPdu&>(packet);
    
+   // Check to make sure we are not just resending an already received message
+   if ((mConfig->GetApplicationID() == pdu.getFiringEntityID().getApplication()) &&
+        (mConfig->GetSiteID() == pdu.getFiringEntityID().getSite()))
+    {
+        return;
+    }
+   
    DIS::EntityID firingEntityId = pdu.getFiringEntityID();
 
    // find out if there is an actor for this ID
@@ -115,8 +122,14 @@ void DetonationPduProcessor::NotifyRemoteActor(const DIS::DetonationPdu& pdu, co
 	//msg->SetLocation(osg::Vec3(1010,1310,635));
 	msg->SetLocation(mConfig->GetCoordinateConverter().ConvertToLocalTranslation(location));
 
-	LOG_INFO("***** SENDING DETONATION MESSAGE ************");
+    DIS::EntityID shooterEntityId = pdu.getFiringEntityID();
+    const dtCore::UniqueId* shooterActorId = mConfig->GetActiveEntityControl().GetActor(shooterEntityId);
 
+    if (shooterActorId)
+    {
+        msg->SetSendingActorId(*shooterActorId);
+    }
+    
     DIS::EntityID targetEntityId = pdu.getTargetEntityID();
     
     const dtCore::UniqueId* targetActorId = mConfig->GetActiveEntityControl().GetActor(targetEntityId);
@@ -125,7 +138,7 @@ void DetonationPduProcessor::NotifyRemoteActor(const DIS::DetonationPdu& pdu, co
     if (targetActorId)
     {
         msg->SetTargetHit(true);
-        msg->SetTarget(*targetActorId);
+        msg->SetAboutActorId(*targetActorId);
     }
 
 
