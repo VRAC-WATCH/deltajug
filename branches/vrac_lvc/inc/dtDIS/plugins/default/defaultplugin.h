@@ -33,6 +33,7 @@ namespace dtDIS
    class CreateEntityProcessor;
    class RemoveEntityProcessor;
    class ActorUpdateToEntityState;
+   class DetonationToPdu;
 
    /// the plugin to support various DIS::Pdu types.
    class DT_DIS_DEFAULT_EXPORT DefaultPlugin : public dtDIS::IDISPlugin
@@ -60,6 +61,7 @@ namespace dtDIS
       CreateEntityProcessor* mCreateProcessor;
       RemoveEntityProcessor* mRemoveProcessor;
       ActorUpdateToEntityState* mSendingAdapter;
+      DetonationToPdu* mDetonationSendingAdapter;
       const dtDIS::SharedState* mConfig;
    };
 }
