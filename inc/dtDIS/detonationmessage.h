@@ -30,9 +30,6 @@ public:
     void SetTargetHit(bool hit);
     bool GetTargetHit() const;
 
-    void SetTarget(const dtCore::UniqueId& uuid);
-    dtCore::UniqueId GetTarget() const;
-
 	void SetLocation(const osg::Vec3& location);
 	const osg::Vec3& GetLocation() const;
 
@@ -41,8 +38,7 @@ protected:
 
 private:
     static const std::string TARGET_HIT_PARAMETER;
-    static const std::string TARGET_PARAMETER;
-	static const std::string LOC_PARAMETER;
+    static const std::string LOC_PARAMETER;
 };
 
 }
