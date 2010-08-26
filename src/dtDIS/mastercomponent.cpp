@@ -1,6 +1,7 @@
 #include <dtDIS/mastercomponent.h>
 #include <dtDIS/sharedstate.h>
 #include <dtDIS/detonationmessage.h>
+#include <dtDIS/firemessage.h>
 
 #include <DIS/PDUType.h>
 
@@ -55,6 +56,7 @@ void MasterComponent::OnAddedToGM()
 
     // Register Detonation Message
    DetonationMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
+   FireMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
 
    // add the default "plugin"
    mDefaultPlugin->Start( mIncomingMessage, mOutgoingMessage, GetGameManager(), mConfig );
@@ -170,7 +172,8 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
    const dtGame::MessageType& mt = msg.GetMessageType();
 
    // Put detonations onto the wire
-   if (mt == dtDIS::DetonationMessageType::DETONATION)
+   if (mt == dtDIS::DetonationMessageType::DETONATION ||
+       mt == dtDIS::FireMessageType::FIRE)
    {
         // The sender of the message is the actor who shot the munition that triggered the detonation
         dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById(msg.GetSendingActorId());
@@ -199,9 +202,8 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
         }
    }
 
-   //LCR: Extract update info from message to send to network
-   if( mt == dtGame::MessageType::INFO_ACTOR_UPDATED ) {
-      
+   if(mt == dtGame::MessageType::INFO_ACTOR_UPDATED)
+   {
       dtDAL::ActorProxy *proxy = GetGameManager()->FindActorById( msg.GetAboutActorId() );
       
       //LCR: avoid issuing PDU's for remote actors
