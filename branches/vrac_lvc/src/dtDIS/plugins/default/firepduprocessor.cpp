@@ -5,6 +5,7 @@ Dignitas Technologies, LLC
 
 #include <dtDIS/plugins/default/firepduprocessor.h>
 
+#include <dtDIS/firemessage.h>
 #include <dtDIS/sharedstate.h>
 #include <dtGame/gamemanager.h>
 #include <dtGame/actorupdatemessage.h>
@@ -34,7 +35,14 @@ void FirePduProcessor::Process(const DIS::Pdu& packet)
    const DIS::FirePdu& pdu = static_cast<const DIS::FirePdu&>(packet);
    
    DIS::EntityID firingEntityId = pdu.getFiringEntityID();
-
+   
+   // Check to make sure we are not resending an already received message
+   if ((mConfig->GetApplicationID() == firingEntityId.getApplication()) &&
+        (mConfig->GetSiteID() == firingEntityId.getSite()))
+   {
+       return;
+   }
+   
    // find out if there is an actor for this ID
    const dtCore::UniqueId* firingActorId = mConfig->GetActiveEntityControl().GetActor(firingEntityId);
   
@@ -48,50 +56,31 @@ void FirePduProcessor::Process(const DIS::Pdu& packet)
          NotifyRemoteActor(pdu, *firingActorProxy);
       }     
    }
-   else
-   {
-      //looks like we received a packet that we sent.  Ignore it and move on
-      if ((mConfig->GetApplicationID() == firingEntityId.getApplication()) &&
-          (mConfig->GetSiteID()        == firingEntityId.getSite()))
-      {
-         return;
-      }
-
-      //A fire occurred but we have no knowledge of the firing entity - ignore it
-   }
 }
 
-
 void FirePduProcessor::NotifyRemoteActor(const DIS::FirePdu& pdu, const dtDAL::ActorProxy& actor)
-{   
-    //Technically
-    dtCore::RefPtr<dtGame::GameEventMessage> msg;
-    mGM->GetMessageFactory().CreateMessage(dtGame::MessageType::INFO_GAME_EVENT,msg);
-
-    //strictly help with visual studio intellisense
-    dtGame::GameEventMessage* gameEventMessage = (dtGame::GameEventMessage*) msg.get();
-
-    //LCR: For now I'm assuming I can reuse the one and only "Weapon Fire Event"
-    //     But I need to make sure that everyone knows about the fire event before I start to reuse it for 
-    //     another incoming Fire PDU.
-    //     If I am not supposed to reuse it, then who is responsible for deleting old events?
-    //     LCR: TODO: Put the "Weapon Fire Event" string in a constant in propertyname.h/.cpp
-    dtDAL::GameEvent *event = dtDAL::GameEventManager::GetInstance().FindEvent("Weapon Fire Event");
-
-    if(NULL == event) {
-        event = new dtDAL::GameEvent("Weapon Fire Event", "Fire event originating from DIS Network");
-        dtDAL::GameEventManager::GetInstance().AddEvent( *event );       
+{
+    dtCore::RefPtr<FireMessage> msg;
+    
+    mGM->GetMessageFactory().CreateMessage(FireMessageType::FIRE, msg);
+    
+    const DIS::Vector3Double& disLocation = pdu.getLocationInWorldCoordinates();
+    osg::Vec3d location(disLocation.getX(), disLocation.getY(), disLocation.getZ());
+    
+    msg->SetLocation(mConfig->GetCoordinateConverter().ConvertToLocalTranslation(location));
+    
+    DIS::EntityID shooterEntityId = pdu.getFiringEntityID();
+    const dtCore::UniqueId* shooterActorId = mConfig->GetActiveEntityControl().GetActor(shooterEntityId);
+    
+    if (shooterActorId)
+    {
+        msg->SetSendingActorId(*shooterActorId);
     }
-
-    //LCR: TODO: Find out if ALL actors get this message or if only the about actor gets it
-    gameEventMessage->SetAboutActorId(actor.GetId());
-
-    //LCR: TODO: Pack more information in the Weapon Fire Events, such as...
-    //     the firing entity/actor, the munition type, etc. - probably other stuff too
-    //
-	LOG_INFO("SENDING OUT GAME EVENT THAT WE HAVE FIRED OUR GUN**************************");
-    gameEventMessage->SetGameEvent(*event);
-
-   // send it
-   mGM->SendMessage( *msg );
+    else
+    {
+        // TODO - exception
+        return;
+    }
+    
+    mGM->SendMessage(*msg);
 }

@@ -3,6 +3,7 @@
 #include <DIS/IncomingMessage.h>
 #include <dtDIS/outgoingmessage.h>
 #include <dtDIS/detonationmessage.h>
+#include <dtDIS/firemessage.h>
 
 #include <dtGame/gamemanager.h>
 
@@ -20,6 +21,7 @@
 #include <dtDIS/plugins/default/removeentityprocessor.h>   
 #include <dtDIS/plugins/default/actorupdatetoentitystate.h>
 #include <dtDIS/plugins/default/detonationtopdu.h>
+#include <dtDIS/plugins/default/firetopdu.h>
 
 using namespace dtDIS;
 
@@ -31,6 +33,7 @@ DefaultPlugin::DefaultPlugin()
    , mRemoveProcessor( NULL )
    , mSendingAdapter( NULL )
    , mDetonationSendingAdapter(NULL)
+   , mFireSendingAdapter(NULL)
    , mConfig(NULL)
 {
 }
@@ -51,6 +54,7 @@ void DefaultPlugin::Start(DIS::IncomingMessage& imsg,
    mRemoveProcessor = new RemoveEntityProcessor( &omsg, config);
    mSendingAdapter = new ActorUpdateToEntityState( config, gm );
    mDetonationSendingAdapter = new DetonationToPdu(config, gm);
+   mFireSendingAdapter = new FireToPdu(config, gm);
 
    imsg.AddProcessor( DIS::PDU_DETONATION,   mDetonationProcessor);
    imsg.AddProcessor( DIS::PDU_FIRE,         mFireProcessor);
@@ -59,6 +63,7 @@ void DefaultPlugin::Start(DIS::IncomingMessage& imsg,
    imsg.AddProcessor( DIS::PDU_REMOVE_ENTITY, mRemoveProcessor );
    omsg.AddAdaptor( &dtGame::MessageType::INFO_ACTOR_UPDATED , mSendingAdapter );
    omsg.AddAdaptor(&dtDIS::DetonationMessageType::DETONATION, mDetonationSendingAdapter);
+   omsg.AddAdaptor(&dtDIS::FireMessageType::FIRE, mFireSendingAdapter);
 
    // use the current state of the game.
    typedef std::vector<dtGame::GameActorProxy*> ProxyVector;
@@ -83,7 +88,8 @@ void DefaultPlugin::Finish(DIS::IncomingMessage& imsg, dtDIS::OutgoingMessage& o
    imsg.RemoveProcessor( DIS::PDU_REMOVE_ENTITY, mRemoveProcessor );
    omsg.RemoveAdaptor( &dtGame::MessageType::INFO_ACTOR_UPDATED , mSendingAdapter );
    omsg.RemoveAdaptor(&dtDIS::DetonationMessageType::DETONATION, mDetonationSendingAdapter);
-
+   omsg.RemoveAdaptor(&dtDIS::FireMessageType::FIRE, mFireSendingAdapter);
+   
    delete mDetonationProcessor;
    delete mFireProcessor;
    delete mESProcessor;
@@ -91,6 +97,7 @@ void DefaultPlugin::Finish(DIS::IncomingMessage& imsg, dtDIS::OutgoingMessage& o
    delete mRemoveProcessor;
    delete mSendingAdapter;
    delete mDetonationSendingAdapter;
+   delete mFireSendingAdapter;
 }
 
 void DefaultPlugin::OnActorAdded(dtGame::GameActorProxy* actor)
