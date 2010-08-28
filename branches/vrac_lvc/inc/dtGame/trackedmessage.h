@@ -47,76 +47,77 @@ fill, and send a message.
 
 namespace dtGame
 {
-
+
+
 class DT_GAME_EXPORT TrackedMessage : public dtGame::Message
 {
 public:
-	TrackedMessage(void);
-	
-	//Set int representing the object's ID
-	void SetID(const int& Id);
-	
-	//Set Boolean indicating whether the actor's gun's trigger was pulled
-	void SetFire(const bool& fire);
-	
-	//Sets translation vector for actor
-	void SetActorTrans(const osg::Vec3f& trans);
-	
-	//Sets rotation vector for actor
-	void SetActorRot(const osg::Vec3f& rot);
-	
-	//Sets rotation angle belonging to rotation vector for actor
-	void SetActorAng(const double& ang);
-	
-	//Sets translation vector for gun
-	void SetGunTrans(const osg::Vec3f& trans);
-	
-	//Sets rotation vector for gun
-	void SetGunRot(const osg::Vec3f& rot);
-	
-	//Sets rotation angle belonging to rotation vector for gun
-	void SetGunAng(const double& ang);
-	
-	//Return int representing the object's ID
-	const int GetID() const;
-	
-	//Returns Boolean which indicates whether actor's gun's trigger was pulled
-	const bool GetFire() const;
-	
-	//Returns translation vector for actor
-	const osg::Vec3f GetActorTrans() const;
-	
-	//Returns rotation vector for actor
-	const osg::Vec3f GetActorRot() const;
-	
-	//Returns rotation angle belonging to rotation vector for actor
-	const double GetActorAng() const;
-	
-	//Returns translation vector for gun
-	const osg::Vec3f GetGunTrans() const;
-	
-	//Returns rotation vector for gun
-	const osg::Vec3f GetGunRot() const;
-	
-	//Returns roation angle belonging to rotation vector for gun
-	const double GetGunAng() const;
+        TrackedMessage(void);
+        
+        //Set int representing the object's ID
+        void SetID(const int& Id);
+        
+        //Set Boolean indicating whether the actor's gun's trigger was pulled
+        void SetFire(const bool& fire);
+        
+        //Sets translation vector for actor
+        void SetActorTrans(const osg::Vec3f& trans);
+        
+        //Sets rotation vector for actor
+        void SetActorRot(const osg::Vec3f& rot);
+        
+        //Sets rotation angle belonging to rotation vector for actor
+        void SetActorAng(const double& ang);
+        
+        //Sets translation vector for gun
+        void SetGunTrans(const osg::Vec3f& trans);
+        
+        //Sets rotation vector for gun
+        void SetGunRot(const osg::Vec3f& rot);
+        
+        //Sets rotation angle belonging to rotation vector for gun
+        void SetGunAng(const double& ang);
+        
+        //Return int representing the object's ID
+        const int GetID() const;
+        
+        //Returns Boolean which indicates whether actor's gun's trigger was pulled
+        const bool GetFire() const;
+        
+        //Returns translation vector for actor
+        const osg::Vec3f GetActorTrans() const;
+        
+        //Returns rotation vector for actor
+        const osg::Vec3f GetActorRot() const;
+        
+        //Returns rotation angle belonging to rotation vector for actor
+        const double GetActorAng() const;
+        
+        //Returns translation vector for gun
+        const osg::Vec3f GetGunTrans() const;
+        
+        //Returns rotation vector for gun
+        const osg::Vec3f GetGunRot() const;
+        
+        //Returns roation angle belonging to rotation vector for gun
+        const double GetGunAng() const;
 
 protected:
-	virtual ~TrackedMessage(void);
+        virtual ~TrackedMessage(void);
 
 private:
-	//Paramter identifiers for all data contained in message
-	static const std::string ID_PARAMETER;
-	static const std::string FIRE_PARAMETER;
-	
-	static const std::string ACT_TRANS_PARAMETER;
-	static const std::string ACT_ROT_PARAMETER;
-	static const std::string ACT_ANG_PARAMETER;
-	
-	static const std::string GUN_TRANS_PARAMETER;
-	static const std::string GUN_ROT_PARAMETER;
-	static const std::string GUN_ANG_PARAMETER;
-	
+        //Paramter identifiers for all data contained in message
+        static const std::string ID_PARAMETER;
+        static const std::string FIRE_PARAMETER;
+        
+        static const std::string ACT_TRANS_PARAMETER;
+        static const std::string ACT_ROT_PARAMETER;
+        static const std::string ACT_ANG_PARAMETER;
+        
+        static const std::string GUN_TRANS_PARAMETER;
+        static const std::string GUN_ROT_PARAMETER;
+        static const std::string GUN_ANG_PARAMETER;
+        
 };
 
 }

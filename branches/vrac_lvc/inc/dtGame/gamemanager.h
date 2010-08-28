@@ -199,6 +199,7 @@ namespace dtGame
              */
             dtDAL::ActorProxy* FindPrototypeByID(const dtCore::UniqueId& uniqueID);
 
+
             /**
              * @param The uniqueID to look for or NULL for error
              * @return the actor proxy with that ID
@@ -407,6 +408,7 @@ namespace dtGame
                proxy = dynamic_cast<ProxyType*>(tmpProxy.get());
             }
 
+
             /**
              * Creates an actor based on the actor type
              * @param category The category corresponding to the actor type
@@ -611,6 +613,7 @@ namespace dtGame
                }
             }
 
+
             /**
              * Fills a vector with the game proxys whose types match the type parameter
              * @param The type to search for
@@ -812,6 +815,7 @@ namespace dtGame
              * Default is 0.
              */
             int GetStatisticsInterval() const;
+
 
             /**
              * @return true if the Debug Statistics are set to log to the console.
@@ -1015,6 +1019,7 @@ namespace dtGame
              */
             void SetPaused(bool pause);
 
+
             /**
              * Handles a reject message.  This is typically called by a component (usually server side)
              * when it has determined that a request message is invalid and it needs to reject it.
@@ -1051,6 +1056,12 @@ namespace dtGame
              * destroyed, but can be called manually at the appropriate time as well.
              */
             void Shutdown();
+            
+            //Geter and Seter for accessing scenario swich variable
+            //Scenario is set in djGameStart from a config file and then used in an if
+            //statement in VeldtIG.cpp.
+            void SetScenario(std::string scenario);
+            std::string GetScenario();
 
          protected:
 
@@ -1180,6 +1191,9 @@ namespace dtGame
 
             /// application the gm has. the one and only.
             dtABC::Application* mApplication;
+            
+            //Scenario Switch variable
+            std::string mScenario;
 
             // -----------------------------------------------------------------------
             //  Unimplemented constructors and operators
