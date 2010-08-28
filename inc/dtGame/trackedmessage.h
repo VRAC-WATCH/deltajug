@@ -57,6 +57,9 @@ public:
         //Set int representing the object's ID
         void SetID(const int& Id);
         
+        //Set Boolean indicating whether the actor's invicibility feature has been altered
+        void SetInvinciblePress(const bool& press);
+        
         //Set Boolean indicating whether the actor's gun's trigger was pulled
         void SetFire(const bool& fire);
         
@@ -80,6 +83,9 @@ public:
         
         //Return int representing the object's ID
         const int GetID() const;
+        
+        //Returns Boolean which indicates whether actor's invicibility feature has been altered
+        const bool GetInvinciblePress() const; 
         
         //Returns Boolean which indicates whether actor's gun's trigger was pulled
         const bool GetFire() const;
@@ -108,6 +114,7 @@ protected:
 private:
         //Paramter identifiers for all data contained in message
         static const std::string ID_PARAMETER;
+        static const std::string INVIC_PRESS_PARAMETER;
         static const std::string FIRE_PARAMETER;
         
         static const std::string ACT_TRANS_PARAMETER;

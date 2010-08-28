@@ -8,6 +8,7 @@ namespace dtGame
 
         //Create Parameter Names all data tracked message will contain
         const std::string TrackedMessage::ID_PARAMETER = "ID";
+        const std::string TrackedMessage::INVIC_PRESS_PARAMETER = "Invincibility Altered";
         const std::string TrackedMessage::FIRE_PARAMETER = "FIRE";
        
         const std::string TrackedMessage::ACT_TRANS_PARAMETER = "Actor Translation";
@@ -24,6 +25,7 @@ namespace dtGame
         {
                 //Add parameters TrackedMessage
                 AddParameter(new dtGame::DoubleMessageParameter(ID_PARAMETER));
+                AddParameter(new dtGame::BooleanMessageParameter(INVIC_PRESS_PARAMETER));
                 AddParameter(new dtGame::BooleanMessageParameter(FIRE_PARAMETER));
                
                 AddParameter(new dtGame::Vec3fMessageParameter(ACT_TRANS_PARAMETER));
@@ -38,6 +40,11 @@ namespace dtGame
                 bool fire = false;
                 dtGame::BooleanMessageParameter* param = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(FIRE_PARAMETER));
                 param->SetValue(fire);
+                
+                //Initiate Fire parameter to false
+                bool press = false;
+                dtGame::BooleanMessageParameter* param_2 = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(INVIC_PRESS_PARAMETER));
+                param_2->SetValue(press);
 
         }      
 
@@ -53,6 +60,14 @@ namespace dtGame
         {
                 dtGame::IntMessageParameter* param = static_cast<dtGame::IntMessageParameter*>(GetParameter(ID_PARAMETER));
                 param->SetValue(Id);
+        }
+               
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+           
+        void TrackedMessage::SetInvinciblePress(const bool& press)
+        {
+                dtGame::BooleanMessageParameter* param = static_cast<dtGame::BooleanMessageParameter*>(GetParameter(INVIC_PRESS_PARAMETER));
+                param->SetValue(press);
         }
                
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -110,17 +125,25 @@ namespace dtGame
                 dtGame::DoubleMessageParameter* param = static_cast<dtGame::DoubleMessageParameter*>(GetParameter(GUN_ANG_PARAMETER));
                 param->SetValue(gunAng);
         }
-                       
+        
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////               
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
        
-        const int TrackedMessage::TrackedMessage::GetID() const
+        const int TrackedMessage::GetID() const
         {
                 return static_cast<const dtGame::IntMessageParameter*>(GetParameter(ID_PARAMETER))->GetValue();
         }
                        
         //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
-        const bool TrackedMessage::TrackedMessage::GetFire() const
+           
+        const bool TrackedMessage::GetInvinciblePress() const
+        {
+        		return static_cast<const dtGame::BooleanMessageParameter*>(GetParameter(INVIC_PRESS_PARAMETER))->GetValue();
+        }
+        
+        //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        const bool TrackedMessage::GetFire() const
         {
                 return static_cast<const dtGame::BooleanMessageParameter*>(GetParameter(FIRE_PARAMETER))->GetValue();
         }
