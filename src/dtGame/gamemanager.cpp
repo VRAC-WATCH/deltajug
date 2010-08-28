@@ -77,11 +77,11 @@ namespace dtGame
    class GMImpl
    {
    public:
-      GMImpl() 
+      GMImpl()
       {  
       }
-      ~GMImpl() 
-      { 
+      ~GMImpl()
+      {
       }
 
       /// stats for the work of the GM - in a class so its less obtrusive to the gm
@@ -98,6 +98,7 @@ namespace dtGame
       , mFactory("GameManager MessageFactory", *mMachineInfo, "")
       , mApplication(NULL)
       , mRemoveGameEventsOnMapChange(true)
+      , mScenario("Room Clear")
    {
       mLibMgr = &dtDAL::LibraryManager::GetInstance();
       mLogger = &dtUtil::Log::GetInstance("gamemanager.cpp");
@@ -201,6 +202,7 @@ namespace dtGame
          throw dtUtil::Exception(ExceptionEnum::GENERAL_GAMEMANAGER_EXCEPTION,
          "No Application was ever assigned to the GameManager.", __FILE__, __LINE__);
       }
+
 
       return *mApplication;
    }
@@ -410,6 +412,7 @@ namespace dtGame
       }
    }
 
+
    ///////////////////////////////////////////////////////////////////////////////
    void GameManager::PopulateTickMessage(TickMessage& tickMessage,
          double deltaSimTime, double deltaRealTime, double simulationTime)
@@ -609,6 +612,7 @@ namespace dtGame
          {
             frameTickStartCurrent = mGMImpl->mGMStatistics.mStatsTickClock.Tick();
          }
+
 
          GMComponent& component = **i;
 
@@ -822,6 +826,7 @@ namespace dtGame
             ex.LogException(dtUtil::Log::LOG_ERROR, *mLogger);
          }
 
+
          // Statistics information
          if (logActors)
          {
@@ -1033,6 +1038,7 @@ namespace dtGame
       return NULL;
    }
 
+
    ///////////////////////////////////////////////////////////////////////////////
    dtCore::RefPtr<dtGame::GameActorProxy> GameManager::CreateRemoteGameActor(const dtDAL::ActorType& actorType)
    {
@@ -1243,6 +1249,7 @@ namespace dtGame
             return;
          }
 
+
          IEnvGameActor* ea = static_cast<IEnvGameActor*>(envActor->GetActor());
 
          dtCore::RefPtr<IEnvGameActorProxy> oldProxy = mEnvironment;
@@ -1445,6 +1452,7 @@ namespace dtGame
             static_cast<dtGame::IEnvGameActor&>(mEnvironment->GetGameActor()).RemoveAllActors();
             mEnvironment = NULL;
          }
+
 
          mActorProxyMap.clear();
          mGlobalMessageListeners.clear();
@@ -1652,6 +1660,7 @@ namespace dtGame
       {
       }
 
+
       bool operator()(dtDAL::ActorProxy& proxy)
       {
          return proxy.IsInstanceOf(mType);
@@ -1852,6 +1861,7 @@ namespace dtGame
       ClearTimerSingleSet(mRealTimeTimers, name, proxy);
       ClearTimerSingleSet(mSimulationTimers, name, proxy);
    }
+
 
    ///////////////////////////////////////////////////////////////////////////////
    void GameManager::GetRegistrantsForMessages(const MessageType& type,
@@ -2062,6 +2072,7 @@ namespace dtGame
          SendNetworkMessage(*rejectMsg);
       }
 
+
    }
 
    ///////////////////////////////////////////////////////////////////////////////
@@ -2156,6 +2167,16 @@ namespace dtGame
       }
 
       DeleteAllActors(true);
+   }
+   
+   void GameManager::SetScenario(std::string scenario)
+   {
+   		mScenario = scenario;
+   }
+   
+   std::string GameManager::GetScenario()
+   {
+   		return mScenario;
    }
 
    ////////////////////////////////////////////////////////////////////////////////
