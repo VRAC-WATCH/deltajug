@@ -37,13 +37,12 @@ DIS::Pdu* ActorUpdateToEntityState::Convert(const dtGame::Message& source)
     //create the DIS entity ID by using some of the UniqueID
    const dtCore::UniqueId &uniqueID = source.GetAboutActorId();
    const std::string idStr = uniqueID.ToString();
-   char chars[4];
-   for (int i=0; i<4; i++) {chars[i] = idStr[i];}
+   char chars[5];
+   for (int i=0; i<4; i++) {chars[i] = idStr.c_str()[i];}
 
+   chars[4] = '\0';
    eid.setEntity(strtol(&chars[0], NULL, 16));
-
    
-
    // We know its true type since we created it in the this's ctor
    DIS::EntityStatePdu *downcastPdu = reinterpret_cast<DIS::EntityStatePdu*>(mPdu);
 
@@ -65,13 +64,13 @@ DIS::Pdu* ActorUpdateToEntityState::Convert(const dtGame::Message& source)
 
     if (!control.GetEntity(uniqueID))
     {
-        LOG_ERROR("***** Want to add Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
+        //LOG_ALWAYS("***** Want to add Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
         control.AddEntity(eid, uniqueID);
     }
 #if 0
     else
     {
-        LOG_ERROR("**** Actor already there: Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
+        //LOG_ALWAYS("**** Actor already there: Actor ID: " + dtUtil::ToString(uniqueID) + " -> EID: " + dtUtil::ToString(eid.getEntity()));
     }
 #endif
 #endif

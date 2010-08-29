@@ -218,14 +218,13 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          {
             LOG_WARNING("Network buffer is bigger than LAN supports.")
          }
-
+		 	 
          if ( ds.size() > 0 )
          {			
             //LCR: Here is where PDU get sent            
 			mConnection.Send( &(ds[0]), ds.size() );        
-            //LOG_INFO("Sent PDU");
-            //LCR
-            mOutgoingMessage.ClearData();        }        
+            mOutgoingMessage.ClearData();                                                  
+     	} 	        
       }
    }
    //LCR
@@ -235,7 +234,6 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
    {
 	    // Remove entities that are no logner active
 		this->CheckForDefunctEntities();
-
 
       // read the incoming packets
       const unsigned int MTU = 1500;
@@ -247,9 +245,6 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
       {
          size_t recvd(0);
 
-    //	  LOG_INFO("*ON RECEIVE* sizeof buffer: " + dtUtil::ToString(sizeof buffer));
-    //	  LOG_INFO("*ON RECEIVE* MTU: " + dtUtil::ToString(MTU));
-
           recvd = mConnection.Receive(buffer , MTU);
           
 	      if (recvd != 0)
@@ -260,34 +255,6 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
           {
               done = true;
           }
-      }
-
-      //LCR: The above mConnection.Receive code seems like it should be in a loop
-      //     The commented code below seems more appropriate, although using it
-      //     may break some things, such as reusing a single game message for fire events. 
-      //(see firepduprocess.cpp)
-      //while( size_t recvd = mConnection.Receive(buffer , MTU) != 0 ) {
-
-      //      mIncomingMessage.Process( buffer , recvd , DIS::BIG );
-      //}
-
-      //LCR: the following code probably only needs to be a few lines up
-      //     investigate further and possibly delete this next block.
-      //      write the outgoing packets
-      //     don't think the following code will ever even get executed -- needs testing
-      {
-         const DIS::DataStream& ds = mOutgoingMessage.GetData();
-         if( ds.size() > MTU )
-         {
-            LOG_WARNING("Network buffer is bigger than LAN supports.")
-         }
-
-         if ( ds.size() > 0 )
-         {
-//			 LOG_INFO("mConnection.send(2)");
-            mConnection.Send( &(ds[0]), ds.size() );
-            mOutgoingMessage.ClearData();
-         }
       }
    }
    else if (mt == dtGame::MessageType::INFO_MAP_LOADED)
