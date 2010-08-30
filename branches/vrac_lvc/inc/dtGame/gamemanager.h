@@ -38,6 +38,7 @@
 #include <dtCore/base.h>
 #include <dtCore/timer.h>
 
+#include <iostream>
 
 namespace dtUtil
 {
@@ -333,7 +334,7 @@ namespace dtGame
              * @return A pointer to the requested component, or NULL
              */
             GMComponent* GetComponentByName(const std::string& name);
-
+            
             /**
              * Templated version of GetComponentByName that calls the normal one and dynamic casts
              * it to the type of the pointer passed in.  The pointer will be null if the name is not
@@ -1060,8 +1061,8 @@ namespace dtGame
             //Geter and Seter for accessing scenario swich variable
             //Scenario is set in djGameStart from a config file and then used in an if
             //statement in VeldtIG.cpp.
-            void SetScenario(std::string scenario);
-            std::string GetScenario();
+            static void SetScenario(std::string scenario);
+            static std::string GetScenario();
 
          protected:
 
@@ -1191,9 +1192,6 @@ namespace dtGame
 
             /// application the gm has. the one and only.
             dtABC::Application* mApplication;
-            
-            //Scenario Switch variable
-            std::string mScenario;
 
             // -----------------------------------------------------------------------
             //  Unimplemented constructors and operators

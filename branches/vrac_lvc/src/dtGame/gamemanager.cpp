@@ -47,6 +47,9 @@
 #include <dtUtil/stringutils.h>
 #include <dtUtil/log.h>
 
+// Scenario type to load
+std::string mScenarioType = "-clear_room";
+
 namespace dtGame
 {
    IMPLEMENT_MANAGEMENT_LAYER(GameManager);
@@ -98,7 +101,6 @@ namespace dtGame
       , mFactory("GameManager MessageFactory", *mMachineInfo, "")
       , mApplication(NULL)
       , mRemoveGameEventsOnMapChange(true)
-      , mScenario("Room Clear")
    {
       mLibMgr = &dtDAL::LibraryManager::GetInstance();
       mLogger = &dtUtil::Log::GetInstance("gamemanager.cpp");
@@ -2171,12 +2173,12 @@ namespace dtGame
    
    void GameManager::SetScenario(std::string scenario)
    {
-   		mScenario = scenario;
+   		mScenarioType = scenario;
    }
    
    std::string GameManager::GetScenario()
    {
-   		return mScenario;
+   		return mScenarioType;
    }
 
    ////////////////////////////////////////////////////////////////////////////////
