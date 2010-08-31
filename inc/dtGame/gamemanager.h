@@ -1063,7 +1063,10 @@ namespace dtGame
             //statement in VeldtIG.cpp.
             static void SetScenario(std::string scenario);
             static std::string GetScenario();
-
+			
+			static void SetIsMaster(bool isMaster);
+			static bool GetIsMaster();
+			
          protected:
 
             struct TimerInfo
@@ -1168,7 +1171,9 @@ namespace dtGame
             // the map code can modify game manager with some control.
             bool mSendCreatesAndDeletes;
             bool mAddActorsToScene;
-
+			
+			//Tell game manager whether the node is the master or not
+			
             std::set<TimerInfo> mSimulationTimers, mRealTimeTimers;
 
             typedef std::pair<dtCore::RefPtr<GameActorProxy>, std::string> ProxyInvokablePair;

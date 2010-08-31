@@ -49,6 +49,7 @@
 
 // Scenario type to load
 std::string mScenarioType = "-clear_room";
+bool mIsMaster = false;
 
 namespace dtGame
 {
@@ -2180,7 +2181,16 @@ namespace dtGame
    {
    		return mScenarioType;
    }
-
+			
+	void GameManager::SetIsMaster(bool isMaster)
+	{
+		mIsMaster = isMaster;
+	}
+	bool GameManager::GetIsMaster()
+	{
+		return mIsMaster;
+	}
+			
    ////////////////////////////////////////////////////////////////////////////////
    /*                            Statistics Information                          */
    ////////////////////////////////////////////////////////////////////////////////
