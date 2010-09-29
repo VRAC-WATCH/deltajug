@@ -2190,6 +2190,26 @@ namespace dtGame
 	{
 		return mIsMaster;
 	}
+	
+	void GameManager::SetBCaveAlleyHead(osg::Vec3 head)
+	{
+		bCaveAlleyHead = head;
+	}
+	
+	osg::Vec3 GameManager::GetBCaveAlleyHead()
+	{
+		return bCaveAlleyHead;
+	}
+	
+	void GameManager::SetLTvWindowHead(osg::Vec3 head)
+	{
+		lTvWindowHead = head;
+	}
+	
+	osg::Vec3 GameManager::GetLTvWindowHead()
+	{
+		return lTvWindowHead;
+	}
 			
    ////////////////////////////////////////////////////////////////////////////////
    /*                            Statistics Information                          */
