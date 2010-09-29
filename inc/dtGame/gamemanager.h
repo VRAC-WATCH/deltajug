@@ -1067,6 +1067,12 @@ namespace dtGame
 			static void SetIsMaster(bool isMaster);
 			static bool GetIsMaster();
 			
+			void SetBCaveAlleyHead(osg::Vec3 head);
+			osg::Vec3 GetBCaveAlleyHead();
+			
+			void SetLTvWindowHead(osg::Vec3 head);
+			osg::Vec3 GetLTvWindowHead();
+
          protected:
 
             struct TimerInfo
@@ -1195,6 +1201,8 @@ namespace dtGame
             NameVector mLoadedMaps;
             dtCore::RefPtr<MapChangeStateData> mMapChangeStateData;
 
+			osg::Vec3 bCaveAlleyHead, lTvWindowHead;
+			
             /// application the gm has. the one and only.
             dtABC::Application* mApplication;
 
