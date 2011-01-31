@@ -1058,6 +1058,7 @@ namespace dtGame
              */
             void Shutdown();
             
+            //LVC IMPLEMENTATIONS
             //Geter and Seter for accessing scenario swich variable
             //Scenario is set in djGameStart from a config file and then used in an if
             //statement in VeldtIG.cpp.
@@ -1072,6 +1073,12 @@ namespace dtGame
 			
 			void SetLTvWindowHead(osg::Vec3 head);
 			osg::Vec3 GetLTvWindowHead();
+			
+			void SetVeldtOffset(osg::Vec3 veldtOff);
+			osg::Vec3 GetVeldtOffset();
+			
+			void SetVeldtRoomLocation(osg::Vec3 veldtLoc);
+			osg::Vec3 GetVeldtRoomLocation();
 
          protected:
 
@@ -1200,8 +1207,10 @@ namespace dtGame
             bool mPaused;
             NameVector mLoadedMaps;
             dtCore::RefPtr<MapChangeStateData> mMapChangeStateData;
-
+			
+			//LVC ADDED IMPLEMENTATION
 			osg::Vec3 bCaveAlleyHead, lTvWindowHead;
+			osg::Vec3 veldtRoomLoc, veldtOffset;
 			
             /// application the gm has. the one and only.
             dtABC::Application* mApplication;
