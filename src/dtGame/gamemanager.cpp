@@ -2172,44 +2172,26 @@ namespace dtGame
       DeleteAllActors(true);
    }
    
-   void GameManager::SetScenario(std::string scenario)
-   {
-   		mScenarioType = scenario;
-   }
-   
-   std::string GameManager::GetScenario()
-   {
-   		return mScenarioType;
-   }
+   ////////////////////////////////////////////////////////////////////////////////
+   /*                            LVC IMPLEMTATIONS                          */
+   ////////////////////////////////////////////////////////////////////////////////
+   void GameManager::SetScenario(std::string scenario)	{mScenarioType = scenario; }
+   std::string GameManager::GetScenario()				{return mScenarioType;}
 			
-	void GameManager::SetIsMaster(bool isMaster)
-	{
-		mIsMaster = isMaster;
-	}
-	bool GameManager::GetIsMaster()
-	{
-		return mIsMaster;
-	}
+	void GameManager::SetIsMaster(bool isMaster)		{mIsMaster = isMaster;}
+	bool GameManager::GetIsMaster()						{return mIsMaster;}
+
+	void GameManager::SetBCaveAlleyHead(osg::Vec3 head)	{bCaveAlleyHead = head;}
+	osg::Vec3 GameManager::GetBCaveAlleyHead()			{return bCaveAlleyHead;}
 	
-	void GameManager::SetBCaveAlleyHead(osg::Vec3 head)
-	{
-		bCaveAlleyHead = head;
-	}
-	
-	osg::Vec3 GameManager::GetBCaveAlleyHead()
-	{
-		return bCaveAlleyHead;
-	}
-	
-	void GameManager::SetLTvWindowHead(osg::Vec3 head)
-	{
-		lTvWindowHead = head;
-	}
-	
-	osg::Vec3 GameManager::GetLTvWindowHead()
-	{
-		return lTvWindowHead;
-	}
+	void GameManager::SetLTvWindowHead(osg::Vec3 head)	{lTvWindowHead = head;}
+	osg::Vec3 GameManager::GetLTvWindowHead()			{return lTvWindowHead;}
+				
+	void GameManager::SetVeldtOffset(osg::Vec3 veldtOff){veldtOffset = veldtOff;}
+	osg::Vec3 GameManager::GetVeldtOffset()				{return veldtOffset;}
+			
+	void GameManager::SetVeldtRoomLocation(osg::Vec3 veldtLoc)		{veldtRoomLoc = veldtLoc;}
+	osg::Vec3 GameManager::GetVeldtRoomLocation()					{return veldtRoomLoc;}
 			
    ////////////////////////////////////////////////////////////////////////////////
    /*                            Statistics Information                          */
