@@ -103,7 +103,7 @@ namespace dtDIS
       
       
       // Appends a buffered pdu message to be processed in the next frame update
-	  void AddIncomingBuffer(const char* buffer, int size);
+	  void AddIncomingDataStream(DIS::DataStream* stream);
 
 
    protected:
@@ -133,7 +133,7 @@ namespace dtDIS
       SharedState* mConfig;
       DefaultPlugin* mDefaultPlugin;
 	  double mTimeOutDelta;
-	  std::vector<std::pair<const char*, int> > mIncomingBuffers;
+	  std::vector<DIS::DataStream*> mIncomingDataStreams;
 
 	  void CheckForDefunctEntities();
    };

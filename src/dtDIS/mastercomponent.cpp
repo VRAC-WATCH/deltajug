@@ -236,12 +236,16 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 		this->CheckForDefunctEntities();
 
 	  	// Process all incoming buffers
-	  	std::vector<std::pair<const char*, int> >::iterator iter;
-	  	for (iter = mIncomingBuffers.begin(); iter != mIncomingBuffers.end(); ++iter)
-			mIncomingMessage.Process(iter->first, iter->second, DIS::BIG);
-		
+	  	for (unsigned int i = 0; i < mIncomingDataStreams.size(); ++i)
+	  	{
+	  		DIS::DataStream& stream = *mIncomingDataStreams.at(i);
+	  		mIncomingMessage.Process(&stream[0], stream.size(), DIS::BIG);
+	  	}
+
 		// Clear out all the buffers
-		mIncomingBuffers.clear();
+		for (unsigned int i = 0; i < mIncomingDataStreams.size(); ++i)
+			delete mIncomingDataStreams.at(i);
+		mIncomingDataStreams.clear();
 
 /*
 	  DELETE ME
@@ -318,10 +322,9 @@ const SharedState* MasterComponent::GetSharedState() const
    return mConfig;
 }
 
-void MasterComponent::AddIncomingBuffer(const char* buffer, int size)
+void MasterComponent::AddIncomingDataStream(DIS::DataStream* stream)
 {
-	std::pair<const char*, int> incBuffer(buffer, size);
-	mIncomingBuffers.push_back(incBuffer);
+	mIncomingDataStreams.push_back(stream);
 }
 
 ////////////////////////////////////////////////////////////////////////////////
