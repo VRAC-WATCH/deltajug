@@ -232,8 +232,19 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 
    if( mt == dtGame::MessageType::TICK_LOCAL )
    {
-	    // Remove entities that are no logner active
+	    // Remove entities that are no longer active
 		this->CheckForDefunctEntities();
+
+	  	// Process all incoming buffers
+	  	std::vector<std::pair<const char*, int> >::iterator iter;
+	  	for (iter = mIncomingBuffers.begin(); iter != mIncomingBuffers.end(); ++iter)
+			mIncomingMessage.Process(iter->first, iter->second, DIS::BIG);
+		
+		// Clear out all the buffers
+		mIncomingBuffers.clear();
+
+/*
+	  DELETE ME
 
       // read the incoming packets
       const unsigned int MTU = 1500;
@@ -241,6 +252,7 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 
       bool done = false;
 
+	  // Need to swap this to use our mIncomingBuffers vector
       while(!done)
       {
          size_t recvd(0);
@@ -256,6 +268,7 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
               done = true;
           }
       }
+*/
    }
    else if (mt == dtGame::MessageType::INFO_MAP_LOADED)
    {
@@ -303,6 +316,12 @@ SharedState* MasterComponent::GetSharedState()
 const SharedState* MasterComponent::GetSharedState() const
 {
    return mConfig;
+}
+
+void MasterComponent::AddIncomingBuffer(const char* buffer, int size)
+{
+	std::pair<const char*, int> incBuffer(buffer, size);
+	mIncomingBuffers.push_back(incBuffer);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

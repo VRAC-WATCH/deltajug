@@ -100,6 +100,11 @@ namespace dtDIS
       /// obtain the SharedState to know the current state of entity management and configurations.
       /// @return the SharedState instance.
       const SharedState* GetSharedState() const;
+      
+      
+      // Appends a buffered pdu message to be processed in the next frame update
+	  void AddIncomingBuffer(const char* buffer, int size);
+
 
    protected:
       ~MasterComponent();
@@ -128,6 +133,7 @@ namespace dtDIS
       SharedState* mConfig;
       DefaultPlugin* mDefaultPlugin;
 	  double mTimeOutDelta;
+	  std::vector<std::pair<const char*, int> > mIncomingBuffers;
 
 	  void CheckForDefunctEntities();
    };
