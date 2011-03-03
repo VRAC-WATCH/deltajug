@@ -23,7 +23,6 @@ const double MasterComponent::TIME_OUT_LIMIT = 15.0;
 MasterComponent::MasterComponent(SharedState* config)
    : dtGame::GMComponent("dtDIS_MasterComponent")
    , mPluginManager()
-   , mConnection()
    , mIncomingMessage()
    , mOutgoingMessage(DIS::BIG, config->GetConnectionData().exercise_id )
    , mConfig( config )
@@ -52,7 +51,7 @@ MasterComponent::~MasterComponent()
 
 void MasterComponent::OnAddedToGM()
 {
-   const ConnectionData& connect_data = mConfig->GetConnectionData();
+   //const ConnectionData& connect_data = mConfig->GetConnectionData();
 
     // Register Detonation Message
    DetonationMessageType::RegisterMessageTypes(GetGameManager()->GetMessageFactory());
@@ -67,9 +66,6 @@ void MasterComponent::OnAddedToGM()
    PluginManager::LibraryRegistry& plugins = mPluginManager.GetRegistry();
    PluginManager::LibraryRegistry::iterator enditer = plugins.end();
    std::for_each( plugins.begin(), plugins.end(), func );
-
-   // make a connection to the DIS multicast network
-   mConnection.Connect( connect_data.port , connect_data.ip.c_str() );
 }
 
 void MasterComponent::OnRemovedFromGM()
@@ -87,9 +83,6 @@ void MasterComponent::OnRemovedFromGM()
    ///\todo remove the controlled entities.
    // clear the state data
    mConfig->GetActiveEntityControl().ClearAll();
-
-   // stop reading the port
-   mConnection.Disconnect();
 }
 
 void MasterComponent::LoadPlugins(const std::string& dir)
@@ -190,11 +183,11 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
              {
                 LOG_WARNING("Network buffer is bigger than LAN supports.")
              }
-    
+
              if ( ds.size() > 0 )
              {          
                 //LCR: Here is where PDU get sent            
-                mConnection.Send( &(ds[0]), ds.size() );        
+                //mConnection.Send( &(ds[0]), ds.size() );        
                 //LOG_INFO("Sent PDU");
                 //LCR
                 mOutgoingMessage.ClearData();
@@ -218,17 +211,16 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          {
             LOG_WARNING("Network buffer is bigger than LAN supports.")
          }
-		 	 
+
          if ( ds.size() > 0 )
          {			
             //LCR: Here is where PDU get sent            
-			mConnection.Send( &(ds[0]), ds.size() );        
+			//mConnection.Send( &(ds[0]), ds.size() );        
             mOutgoingMessage.ClearData();                                                  
      	} 	        
       }
    }
    //LCR
-
 
    if( mt == dtGame::MessageType::TICK_LOCAL )
    {
@@ -246,33 +238,6 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
 		for (unsigned int i = 0; i < mIncomingDataStreams.size(); ++i)
 			delete mIncomingDataStreams.at(i);
 		mIncomingDataStreams.clear();
-
-/*
-	  DELETE ME
-
-      // read the incoming packets
-      const unsigned int MTU = 1500;
-      char buffer[MTU];
-
-      bool done = false;
-
-	  // Need to swap this to use our mIncomingBuffers vector
-      while(!done)
-      {
-         size_t recvd(0);
-
-          recvd = mConnection.Receive(buffer , MTU);
-          
-	      if (recvd != 0)
-          {
-             mIncomingMessage.Process( buffer , recvd , DIS::BIG );
-          }
-          else
-          {
-              done = true;
-          }
-      }
-*/
    }
    else if (mt == dtGame::MessageType::INFO_MAP_LOADED)
    {
