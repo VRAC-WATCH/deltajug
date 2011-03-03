@@ -127,7 +127,6 @@ namespace dtDIS
 
    private:
       PluginManager mPluginManager;
-      Connection mConnection;
       DIS::IncomingMessage mIncomingMessage;
       OutgoingMessage mOutgoingMessage;
       SharedState* mConfig;
