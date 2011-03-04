@@ -177,19 +177,17 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
             this->mOutgoingMessage.Handle(msg);
             
             //write the outgoing packets
-             const DIS::DataStream& ds = mOutgoingMessage.GetData();
+             const DIS::DataStream* ds = new DIS::DataStream(mOutgoingMessage.GetData());
              const unsigned int MTU = 1500;
-             if( ds.size() > MTU )
+             if (ds->size() > MTU )
              {
                 LOG_WARNING("Network buffer is bigger than LAN supports.")
              }
 
-             if ( ds.size() > 0 )
-             {          
-                //LCR: Here is where PDU get sent            
-                //mConnection.Send( &(ds[0]), ds.size() );        
-                //LOG_INFO("Sent PDU");
-                //LCR
+             if (ds->size() > 0 )
+             {
+             	// Add the data stream to be sent out through juggler
+             	mOutgoingDataStreams.push_back(ds);
                 mOutgoingMessage.ClearData();
              }
         }
@@ -205,18 +203,18 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          this->mOutgoingMessage.Handle(msg);
 
          //write the outgoing packets
-         const DIS::DataStream& ds = mOutgoingMessage.GetData();
+         const DIS::DataStream* ds = new DIS::DataStream(mOutgoingMessage.GetData());
          const unsigned int MTU = 1500;
-         if( ds.size() > MTU )
+         if (ds->size() > MTU)
          {
             LOG_WARNING("Network buffer is bigger than LAN supports.")
          }
 
-         if ( ds.size() > 0 )
+         if (ds->size() > 0)
          {			
-            //LCR: Here is where PDU get sent            
-			//mConnection.Send( &(ds[0]), ds.size() );        
-            mOutgoingMessage.ClearData();                                                  
+             // Add the data stream to be sent out through juggler
+             mOutgoingDataStreams.push_back(ds);
+             mOutgoingMessage.ClearData();                                              
      	} 	        
       }
    }
@@ -254,7 +252,6 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
          }
       }
    }
-
 }
 
 DIS::IncomingMessage& MasterComponent::GetIncomingMessage()
@@ -290,6 +287,13 @@ const SharedState* MasterComponent::GetSharedState() const
 void MasterComponent::AddIncomingDataStream(DIS::DataStream* stream)
 {
 	mIncomingDataStreams.push_back(stream);
+}
+
+std::vector<const DIS::DataStream *> MasterComponent::popOutgoingDataStreams()
+{
+	std::vector<const DIS::DataStream *> temp = mOutgoingDataStreams;
+	mOutgoingDataStreams.clear();
+	return temp;
 }
 
 ////////////////////////////////////////////////////////////////////////////////
