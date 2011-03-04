@@ -102,8 +102,11 @@ namespace dtDIS
       const SharedState* GetSharedState() const;
       
       
-      // Appends a buffered pdu message to be processed in the next frame update
-	  void AddIncomingDataStream(DIS::DataStream* stream);
+    // Appends a buffered pdu message to be processed in the next frame update
+	void AddIncomingDataStream(DIS::DataStream* stream);
+
+	/** Returns the outgoing vector of data streams. */
+	std::vector<const DIS::DataStream *> popOutgoingDataStreams();
 
 
    protected:
@@ -133,6 +136,7 @@ namespace dtDIS
       DefaultPlugin* mDefaultPlugin;
 	  double mTimeOutDelta;
 	  std::vector<DIS::DataStream*> mIncomingDataStreams;
+	  std::vector<const DIS::DataStream*> mOutgoingDataStreams;
 
 	  void CheckForDefunctEntities();
    };
