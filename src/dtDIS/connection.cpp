@@ -32,16 +32,13 @@ void Connection::Connect(unsigned int port, const char* host)
       LOG_ERROR( strm.str() );
    }
 
-   nlSetAddrPort(&maddr, port);
-
    //LCR: (mods to nlHint)
    //nlHint(NL_MULTICAST_TTL, NL_TTL_LOCAL);
    nlHint(NL_REUSE_ADDRESS, NL_TRUE);
-   //LCR
-
+   //LCR
    //LCR: (mods to nlOpen)
-   //mSocket = nlOpen(port, NL_UDP_MULTICAST);
-   mSocket = nlOpen(port, NL_UDP_BROADCAST);
+   //mSocket = nlOpen(port, NL_UDP_MULTICAST);		//this is leftover code
+   mSocket = nlOpen(port, NL_UDP_BROADCAST);		//this broadcasts to 255.255.255.255
    //LCR
 
 //	LOG_INFO("!!!!!!!!!!!!! OPENING SOCKET !!!!!!!!!!!!!!!!!!!!!!!!!!!!");
@@ -55,10 +52,8 @@ void Connection::Connect(unsigned int port, const char* host)
    } 
    else
    {
-	   NLaddress addr;
-	   nlGetLocalAddr(mSocket, &addr);
-
-	   NLbyte byteString[256];
+	//////WE DO NOT NEED TO CALL CONNECT IF WE ARE OPENING A SOCKET ON BROADCAST
+	
 //	   LOG_INFO("Socket address: " + dtUtil::ToString(nlAddrToString(&addr, byteString)));
    }
 
