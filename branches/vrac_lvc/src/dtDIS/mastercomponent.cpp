@@ -215,7 +215,7 @@ void MasterComponent::ProcessMessage(const dtGame::Message& msg)
              // Add the data stream to be sent out through juggler
              mOutgoingDataStreams.push_back(ds);
              mOutgoingMessage.ClearData();                                              
-     	} 	        
+     	} 	  
       }
    }
    //LCR
@@ -282,11 +282,6 @@ SharedState* MasterComponent::GetSharedState()
 const SharedState* MasterComponent::GetSharedState() const
 {
    return mConfig;
-}
-
-void MasterComponent::AddIncomingDataStream(DIS::DataStream* stream)
-{
-	mIncomingDataStreams.push_back(stream);
 }
 
 std::vector<const DIS::DataStream *> MasterComponent::popOutgoingDataStreams()
