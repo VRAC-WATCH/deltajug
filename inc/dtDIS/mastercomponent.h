@@ -47,6 +47,10 @@ namespace dtDIS
    class DT_DIS_EXPORT MasterComponent : public dtGame::GMComponent
    {
    public:
+
+	   static const double TIME_OUT_CHECK_INTERVAL;
+	   static const double TIME_OUT_LIMIT;
+
       /// supply the configuration files needed to support DIS.
       /// @param config the result of reading data files needed for this component to work.  This class does not assume ownership of the memory.
       /// @param connection_file The XML file that shows the ConnectionData.
@@ -96,6 +100,14 @@ namespace dtDIS
       /// obtain the SharedState to know the current state of entity management and configurations.
       /// @return the SharedState instance.
       const SharedState* GetSharedState() const;
+      
+      
+    // Appends a buffered pdu message to be processed in the next frame update
+	void AddIncomingDataStream(DIS::DataStream* stream);
+
+	/** Returns the outgoing vector of data streams. */
+	std::vector<const DIS::DataStream *> popOutgoingDataStreams();
+
 
    protected:
       ~MasterComponent();
@@ -118,11 +130,15 @@ namespace dtDIS
 
    private:
       PluginManager mPluginManager;
-      Connection mConnection;
       DIS::IncomingMessage mIncomingMessage;
       OutgoingMessage mOutgoingMessage;
       SharedState* mConfig;
       DefaultPlugin* mDefaultPlugin;
+	  double mTimeOutDelta;
+	  std::vector<DIS::DataStream*> mIncomingDataStreams;
+	  std::vector<const DIS::DataStream*> mOutgoingDataStreams;
+
+	  void CheckForDefunctEntities();
    };
 }
 

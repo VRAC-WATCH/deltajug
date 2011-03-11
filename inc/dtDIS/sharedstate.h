@@ -76,6 +76,19 @@ namespace dtDIS
    } // end namespace details
    ///@endcond
 
+   ///\brief structure to maintain the one-to-one
+   /// relationship between an actor proxy and its last update time
+   class DT_DIS_EXPORT ActorUpdateConfig {
+
+   public:
+	   bool Update(const dtCore::UniqueId& entityID, double updateTime);
+	   bool Remove(const dtCore::UniqueId& entityID);
+
+	   std::vector<dtCore::UniqueId> GetTimedOutActors(double currentTime, double timeOut = 30.0);
+   private:
+	   typedef std::map<dtCore::UniqueId, double> ActorUpdateMap;
+	   ActorUpdateMap mMap;
+   };
 
    ///\brief a structure to maintain the one-to-one
    /// relationship between the DIS::EntityID and the dtDAL::ActorType.
@@ -154,11 +167,23 @@ namespace dtDIS
                   const std::string& entityMappingXMLFile = "");
       ~SharedState();
 
+		ActorUpdateConfig& GetActorUpdateMap();
+		const ActorUpdateConfig& GetActorUpdateMap() const;
+
       ActorMapConfig& GetActorMap();
       const ActorMapConfig& GetActorMap() const;
 
-      ResourceMapConfig& GetResourceMap();
-      const ResourceMapConfig& GetResourceMap() const;
+	  ResourceMapConfig& GetHealthyResourceMap();
+	  const ResourceMapConfig& GetHealthyResourceMap() const;
+
+	  ResourceMapConfig& GetDamagedResourceMap();
+	  const ResourceMapConfig& GetDamagedResourceMap() const;
+
+	  ResourceMapConfig& GetDestroyedResourceMap();
+	  const ResourceMapConfig& GetDestroyedResourceMap() const;
+
+	  ResourceMapConfig& GetAnimationResourceMap();
+	  const ResourceMapConfig& GetAnimationResourceMap() const;
 
       ActiveEntityControl& GetActiveEntityControl();
       const ActiveEntityControl& GetActiveEntityControl() const;
@@ -178,8 +203,14 @@ namespace dtDIS
 
    private:
       ActorMapConfig mActorMapConfig;
-      ResourceMapConfig mResourceMapConfig;
-      ActiveEntityControl mActiveEntityControl;
+      ResourceMapConfig mHealthyResourceMap;
+	  ResourceMapConfig mDamagedResourceMap;
+	  ResourceMapConfig mDestroyedResourceMap;
+	  ResourceMapConfig mAnimationResourceMap;
+	  	  
+	  ActorUpdateConfig mActorUpdateConfig;
+
+	  ActiveEntityControl mActiveEntityControl;
       ConnectionData mConnectionData;
       unsigned short mSiteID;       ///<For outgoing DIS packets
       unsigned short mApplicationID;///<For outgoing DIS packets

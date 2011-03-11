@@ -36,6 +36,10 @@ namespace dtGame
    {
       DECLARE_ENUM(MessageType);
       public:
+      
+      	 //LVC Addition
+      	 static const MessageType INFO_TRACKED;
+      
          /// his should never be used.  It is the default when creating a message object.
          static const MessageType UNKNOWN;
        

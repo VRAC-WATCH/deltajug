@@ -1739,20 +1739,28 @@ namespace dtDAL
          throw dtUtil::Exception(ExceptionEnum::BaseException,
          "Cannot call SetValue() on message parameter with a list of values.", __FILE__, __LINE__);
 
-      mDescriptor = descriptor == NULL ? dtDAL::ResourceDescriptor("","") : *descriptor;
+      //mDescriptor = descriptor == NULL ? dtDAL::ResourceDescriptor("","") : *descriptor;
+      if(descriptor == NULL){
+      	mDescriptor = dtDAL::ResourceDescriptor("","");
+      }else{
+      	mDescriptor = *descriptor;
+      }
    }
 
    ///////////////////////////////////////////////////////////////////////////////
    const dtDAL::ResourceDescriptor* NamedResourceParameter::GetValue() const
    {
-      if (IsList())
+      if (IsList()){
          throw dtUtil::Exception(ExceptionEnum::BaseException,
          "Cannot call GetValue() on message parameter with a list of values.", __FILE__, __LINE__);
+         }
 
-      if (mDescriptor.GetResourceIdentifier().empty())
+      if (mDescriptor.GetResourceIdentifier().empty()){
          return NULL;
-      else
+        }
+      else{
          return &mDescriptor;
+       }
    }
 
    ///////////////////////////////////////////////////////////////////////////////

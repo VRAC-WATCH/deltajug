@@ -26,6 +26,9 @@ namespace dtGame
 {
    IMPLEMENT_ENUM(MessageType);
 
+	//LVC Application
+	const MessageType MessageType::INFO_TRACKED("Tracked", "Info", "Passes tracking updates from Juggler to tracked actors", USER_DEFINED_MESSAGE_TYPE + 2);
+
    const MessageType MessageType::UNKNOWN("Unknown", "Unknown", "This is the default when creating a message with the empty constuctor", 0);
    const MessageType MessageType::TICK_LOCAL("Tick Local", "Tick", "Signals a frame event. Actors are local and should run the next frame of simulation code", 1);
    const MessageType MessageType::TICK_REMOTE("Tick Remote", "Tick", "Signals a frame event. Actors are remote and should run the next frame of simulation code", 2);

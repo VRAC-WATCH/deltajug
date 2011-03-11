@@ -38,6 +38,7 @@
 #include <dtCore/base.h>
 #include <dtCore/timer.h>
 
+#include <iostream>
 
 namespace dtUtil
 {
@@ -199,6 +200,7 @@ namespace dtGame
              */
             dtDAL::ActorProxy* FindPrototypeByID(const dtCore::UniqueId& uniqueID);
 
+
             /**
              * @param The uniqueID to look for or NULL for error
              * @return the actor proxy with that ID
@@ -332,7 +334,7 @@ namespace dtGame
              * @return A pointer to the requested component, or NULL
              */
             GMComponent* GetComponentByName(const std::string& name);
-
+            
             /**
              * Templated version of GetComponentByName that calls the normal one and dynamic casts
              * it to the type of the pointer passed in.  The pointer will be null if the name is not
@@ -406,6 +408,7 @@ namespace dtGame
                dtCore::RefPtr<dtDAL::ActorProxy> tmpProxy = CreateActor(actorType);
                proxy = dynamic_cast<ProxyType*>(tmpProxy.get());
             }
+
 
             /**
              * Creates an actor based on the actor type
@@ -611,6 +614,7 @@ namespace dtGame
                }
             }
 
+
             /**
              * Fills a vector with the game proxys whose types match the type parameter
              * @param The type to search for
@@ -812,6 +816,7 @@ namespace dtGame
              * Default is 0.
              */
             int GetStatisticsInterval() const;
+
 
             /**
              * @return true if the Debug Statistics are set to log to the console.
@@ -1015,6 +1020,7 @@ namespace dtGame
              */
             void SetPaused(bool pause);
 
+
             /**
              * Handles a reject message.  This is typically called by a component (usually server side)
              * when it has determined that a request message is invalid and it needs to reject it.
@@ -1051,6 +1057,28 @@ namespace dtGame
              * destroyed, but can be called manually at the appropriate time as well.
              */
             void Shutdown();
+            
+            //LVC IMPLEMENTATIONS
+            //Geter and Seter for accessing scenario swich variable
+            //Scenario is set in djGameStart from a config file and then used in an if
+            //statement in VeldtIG.cpp.
+            static void SetScenario(std::string scenario);
+            static std::string GetScenario();
+			
+			static void SetIsMaster(bool isMaster);
+			static bool GetIsMaster();
+			
+			void SetBCaveAlleyHead(osg::Vec3 head);
+			osg::Vec3 GetBCaveAlleyHead();
+			
+			void SetLTvWindowHead(osg::Vec3 head);
+			osg::Vec3 GetLTvWindowHead();
+			
+			void SetVeldtOffset(osg::Vec3 veldtOff);
+			osg::Vec3 GetVeldtOffset();
+			
+			void SetVeldtRoomLocation(osg::Vec3 veldtLoc);
+			osg::Vec3 GetVeldtRoomLocation();
 
          protected:
 
@@ -1156,7 +1184,9 @@ namespace dtGame
             // the map code can modify game manager with some control.
             bool mSendCreatesAndDeletes;
             bool mAddActorsToScene;
-
+			
+			//Tell game manager whether the node is the master or not
+			
             std::set<TimerInfo> mSimulationTimers, mRealTimeTimers;
 
             typedef std::pair<dtCore::RefPtr<GameActorProxy>, std::string> ProxyInvokablePair;
@@ -1177,7 +1207,11 @@ namespace dtGame
             bool mPaused;
             NameVector mLoadedMaps;
             dtCore::RefPtr<MapChangeStateData> mMapChangeStateData;
-
+			
+			//LVC ADDED IMPLEMENTATION
+			osg::Vec3 bCaveAlleyHead, lTvWindowHead;
+			osg::Vec3 veldtRoomLoc, veldtOffset;
+			
             /// application the gm has. the one and only.
             dtABC::Application* mApplication;
 

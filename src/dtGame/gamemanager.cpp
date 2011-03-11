@@ -47,6 +47,10 @@
 #include <dtUtil/stringutils.h>
 #include <dtUtil/log.h>
 
+// Scenario type to load
+std::string mScenarioType = "-clear_room";
+bool mIsMaster = false;
+
 namespace dtGame
 {
    IMPLEMENT_MANAGEMENT_LAYER(GameManager);
@@ -77,11 +81,11 @@ namespace dtGame
    class GMImpl
    {
    public:
-      GMImpl() 
+      GMImpl()
       {  
       }
-      ~GMImpl() 
-      { 
+      ~GMImpl()
+      {
       }
 
       /// stats for the work of the GM - in a class so its less obtrusive to the gm
@@ -201,6 +205,7 @@ namespace dtGame
          throw dtUtil::Exception(ExceptionEnum::GENERAL_GAMEMANAGER_EXCEPTION,
          "No Application was ever assigned to the GameManager.", __FILE__, __LINE__);
       }
+
 
       return *mApplication;
    }
@@ -410,6 +415,7 @@ namespace dtGame
       }
    }
 
+
    ///////////////////////////////////////////////////////////////////////////////
    void GameManager::PopulateTickMessage(TickMessage& tickMessage,
          double deltaSimTime, double deltaRealTime, double simulationTime)
@@ -472,7 +478,6 @@ namespace dtGame
       dtCore::RefPtr<TickMessage> tick;
       GetMessageFactory().CreateMessage(MessageType::TICK_LOCAL, tick);
       PopulateTickMessage(*tick, deltaSimTime, deltaRealTime, simulationTime);
-
       dtCore::RefPtr<TickMessage> tickRemote;
       GetMessageFactory().CreateMessage(MessageType::TICK_REMOTE, tickRemote);
       PopulateTickMessage(*tickRemote, deltaSimTime, deltaRealTime, simulationTime);
@@ -482,7 +487,6 @@ namespace dtGame
 
       ProcessTimers(mRealTimeTimers, GetRealClockTime());
       ProcessTimers(mSimulationTimers, dtCore::Timer_t(GetSimTimeSinceStartup() * 1000000.0));
-
       DoSendMessages();
 
       dtCore::RefPtr<TickMessage> tickEnd;
@@ -490,7 +494,6 @@ namespace dtGame
       PopulateTickMessage(*tickEnd, deltaSimTime, deltaRealTime, simulationTime);
 
       DoSendMessageToComponents(*tickEnd);
-
       RemoveDeletedActors();
 
       mGMImpl->mGMStatistics.FragmentTimeDump(frameTickStart, *this);
@@ -613,6 +616,7 @@ namespace dtGame
             frameTickStartCurrent = mGMImpl->mGMStatistics.mStatsTickClock.Tick();
          }
 
+
          GMComponent& component = **i;
 
          try
@@ -649,7 +653,6 @@ namespace dtGame
    void GameManager::DoSendMessage(const Message& message)
    {
       DoSendMessageToComponents(message);
-
       InvokeGlobalInvokables(message);
 
       // ABOUT ACTOR - The actor itself and others registered against a particular actor
@@ -825,6 +828,7 @@ namespace dtGame
          {
             ex.LogException(dtUtil::Log::LOG_ERROR, *mLogger);
          }
+
 
          // Statistics information
          if (logActors)
@@ -1037,6 +1041,7 @@ namespace dtGame
       return NULL;
    }
 
+
    ///////////////////////////////////////////////////////////////////////////////
    dtCore::RefPtr<dtGame::GameActorProxy> GameManager::CreateRemoteGameActor(const dtDAL::ActorType& actorType)
    {
@@ -1247,6 +1252,7 @@ namespace dtGame
             return;
          }
 
+
          IEnvGameActor* ea = static_cast<IEnvGameActor*>(envActor->GetActor());
 
          dtCore::RefPtr<IEnvGameActorProxy> oldProxy = mEnvironment;
@@ -1449,6 +1455,7 @@ namespace dtGame
             static_cast<dtGame::IEnvGameActor&>(mEnvironment->GetGameActor()).RemoveAllActors();
             mEnvironment = NULL;
          }
+
 
          mActorProxyMap.clear();
          mGlobalMessageListeners.clear();
@@ -1656,6 +1663,7 @@ namespace dtGame
       {
       }
 
+
       bool operator()(dtDAL::ActorProxy& proxy)
       {
          return proxy.IsInstanceOf(mType);
@@ -1856,6 +1864,7 @@ namespace dtGame
       ClearTimerSingleSet(mRealTimeTimers, name, proxy);
       ClearTimerSingleSet(mSimulationTimers, name, proxy);
    }
+
 
    ///////////////////////////////////////////////////////////////////////////////
    void GameManager::GetRegistrantsForMessages(const MessageType& type,
@@ -2066,6 +2075,7 @@ namespace dtGame
          SendNetworkMessage(*rejectMsg);
       }
 
+
    }
 
    ///////////////////////////////////////////////////////////////////////////////
@@ -2161,7 +2171,28 @@ namespace dtGame
 
       DeleteAllActors(true);
    }
+   
+   ////////////////////////////////////////////////////////////////////////////////
+   /*                            LVC IMPLEMTATIONS                          */
+   ////////////////////////////////////////////////////////////////////////////////
+   void GameManager::SetScenario(std::string scenario)	{mScenarioType = scenario; }
+   std::string GameManager::GetScenario()				{return mScenarioType;}
+			
+	void GameManager::SetIsMaster(bool isMaster)		{mIsMaster = isMaster;}
+	bool GameManager::GetIsMaster()						{return mIsMaster;}
 
+	void GameManager::SetBCaveAlleyHead(osg::Vec3 head)	{bCaveAlleyHead = head;}
+	osg::Vec3 GameManager::GetBCaveAlleyHead()			{return bCaveAlleyHead;}
+	
+	void GameManager::SetLTvWindowHead(osg::Vec3 head)	{lTvWindowHead = head;}
+	osg::Vec3 GameManager::GetLTvWindowHead()			{return lTvWindowHead;}
+				
+	void GameManager::SetVeldtOffset(osg::Vec3 veldtOff){veldtOffset = veldtOff;}
+	osg::Vec3 GameManager::GetVeldtOffset()				{return veldtOffset;}
+			
+	void GameManager::SetVeldtRoomLocation(osg::Vec3 veldtLoc)		{veldtRoomLoc = veldtLoc;}
+	osg::Vec3 GameManager::GetVeldtRoomLocation()					{return veldtRoomLoc;}
+			
    ////////////////////////////////////////////////////////////////////////////////
    /*                            Statistics Information                          */
    ////////////////////////////////////////////////////////////////////////////////

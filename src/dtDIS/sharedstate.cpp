@@ -4,13 +4,53 @@
 #include <dtDIS/disxml.h>
 
 #include <cstddef>                   // for NULL
-
+#include <dtUtil/stringutils.h>
 using namespace dtDIS;
 
+bool ActorUpdateConfig::Update(const dtCore::UniqueId& entityID, double updateTime) {
+	mMap[entityID] = updateTime;
+	return true;
+}
 
+bool ActorUpdateConfig::Remove(const dtCore::UniqueId& entityId) {
+	ActorUpdateMap::iterator itr = mMap.find(entityId);
+
+	if (itr != mMap.end()) {
+		mMap.erase(itr);
+		return true;
+	}
+
+	return false;
+}
+
+std::vector<dtCore::UniqueId> ActorUpdateConfig::GetTimedOutActors(double currentTime, double timeOut) {
+	std::vector<dtCore::UniqueId> timedOutEntities;
+	ActorUpdateMap::iterator itr = mMap.begin();
+
+	while (itr != mMap.end())
+	{
+		if (currentTime > (itr->second + timeOut))
+		{
+			timedOutEntities.push_back(itr->first);
+		}
+		
+		++itr;
+	}
+
+	return timedOutEntities;
+}
 
 bool ActorMapConfig::AddActorMapping(const DIS::EntityType& eid, const dtDAL::ActorType* at)
 {
+	LOG_INFO("Adding actor map: " 
+			+ dtUtil::ToString(static_cast<int>(eid.getEntityKind()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getDomain()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getCountry()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getCategory()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getSubcategory()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getSpecific()))
+			+ " " + dtUtil::ToString(static_cast<int>(eid.getExtra()))
+			+ " - For Actor Type: " + at->GetName());
    return( mMap.insert( ActorMap::value_type(eid,at) ).second );
 }
 
@@ -61,7 +101,9 @@ bool ResourceMapConfig::GetMappedResource(const DIS::EntityType& eid, const dtDA
 SharedState::SharedState(const std::string& connectionXMLFile,
                          const std::string& entityMappingXMLFile)
    : mActorMapConfig()
-   , mResourceMapConfig()
+   , mHealthyResourceMap()
+   , mDamagedResourceMap()
+   , mDestroyedResourceMap()
    , mActiveEntityControl()
    , mConnectionData()
    , mSiteID(1)
@@ -89,6 +131,14 @@ SharedState::~SharedState()
 {
 }
 
+ActorUpdateConfig& SharedState::GetActorUpdateMap() {
+	return mActorUpdateConfig;
+}
+
+const ActorUpdateConfig& SharedState::GetActorUpdateMap() const {
+	return mActorUpdateConfig;
+}
+
 ActorMapConfig& SharedState::GetActorMap()
 {
    return mActorMapConfig;
@@ -99,14 +149,44 @@ const ActorMapConfig& SharedState::GetActorMap() const
    return mActorMapConfig;
 }
 
-ResourceMapConfig& SharedState::GetResourceMap()
+ResourceMapConfig& SharedState::GetHealthyResourceMap()
 {
-   return mResourceMapConfig;
+   return mHealthyResourceMap;
 }
 
-const ResourceMapConfig& SharedState::GetResourceMap() const
+const ResourceMapConfig& SharedState::GetHealthyResourceMap() const
 {
-   return mResourceMapConfig;
+   return mHealthyResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetDamagedResourceMap()
+{
+   return mDamagedResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetDamagedResourceMap() const
+{
+   return mDamagedResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetDestroyedResourceMap()
+{
+   return mDestroyedResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetDestroyedResourceMap() const
+{
+   return mDestroyedResourceMap;
+}
+
+ResourceMapConfig& SharedState::GetAnimationResourceMap()
+{
+	return mAnimationResourceMap;
+}
+
+const ResourceMapConfig& SharedState::GetAnimationResourceMap() const
+{
+	return mAnimationResourceMap;
 }
 
 ActiveEntityControl& SharedState::GetActiveEntityControl()
@@ -189,7 +269,9 @@ void dtDIS::SharedState::SetCoordinateConverter(const dtUtil::Coordinates& coord
    //Ensure that the converter is setup to what dtDIS needs.  Incoming DIS is geocentric and
    //the local is Flat earth?
    mCoordConverter.SetIncomingCoordinateType(dtUtil::IncomingCoordinateType::GEOCENTRIC);
-   mCoordConverter.SetLocalCoordinateType(dtUtil::LocalCoordinateType::CARTESIAN_FLAT_EARTH);
+
+    // jschutz - Why was it forcing CARTESIAN_FLAT_EARTH. The previous comment didn't loock confident
+//   mCoordConverter.SetLocalCoordinateType(dtUtil::LocalCoordinateType::CARTESIAN_FLAT_EARTH);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

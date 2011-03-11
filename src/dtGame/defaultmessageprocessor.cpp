@@ -29,9 +29,7 @@
 #include <dtGame/exceptionenum.h>
 #include <dtDAL/enginepropertytypes.h>
 #include <dtDAL/actortype.h>
-#include <dtUtil/log.h>
-
-#include <iostream>
+#include <dtUtil/log.h>
 
 using namespace dtCore;
 
@@ -112,7 +110,14 @@ namespace dtGame
          }
          else
          {
-            LOG_DEBUG("The default message component is processing an unhandled local message");
+             //LCR: Avoid swamping the debug output
+            static unsigned int unhandledMessageCount = 0;
+
+            if ( unhandledMessageCount++ < 10 || unhandledMessageCount % 1000 == 0 ) {
+                char buf[128];
+                sprintf(buf, "Default message processor has processed %i unhandled local messages", unhandledMessageCount);
+                LOG_DEBUG(buf);
+            }
             ProcessUnhandledLocalMessage(msg);
          }
       }
@@ -179,8 +184,7 @@ namespace dtGame
       {
          LOG_ERROR("The about actor is invalid");
          return;
-      }
-
+      }
       ap->ApplyActorUpdate(msg);
    }
 
@@ -203,6 +207,7 @@ namespace dtGame
       GameActorProxy* proxy = GetGameManager()->FindGameActorById(msg.GetAboutActorId());
       if (proxy == NULL)
       {
+      
          // just to make sure the message is actually remote
          if (msg.GetSource() != GetGameManager()->GetMachineInfo())
          {

@@ -27,6 +27,7 @@
 #include <dtGame/actorupdatemessage.h>
 #include <dtCore/refptr.h>
 #include <sstream>
+#include <dtGame/trackedmessage.h>
 
 #include <typeinfo>
 
@@ -45,7 +46,10 @@ namespace dtGame
    mMachine(&machine)
    {
       mMessageFactory = new dtUtil::ObjectFactory<const MessageType*, Message>;
-
+	
+	//LVC Implemenation
+	RegisterMessageType<TrackedMessage>(MessageType::INFO_TRACKED);
+	
       //base messages
       RegisterMessageType<TickMessage>(MessageType::TICK_LOCAL);
       RegisterMessageType<TickMessage>(MessageType::TICK_REMOTE);

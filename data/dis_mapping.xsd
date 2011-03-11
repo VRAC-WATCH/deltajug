@@ -36,12 +36,14 @@
                           <xsd:element name="Resource">
                             <xsd:complexType>
                               <xsd:sequence>
-                                <xsd:element maxOccurs="unbounded" name="Descriptor" type="xsd:string" />
+                                <xsd:element minOccurs="1" maxOccurs="1" name="Healthy" type="xsd:string" />
+								<xsd:element minOccurs="0" maxOccurs="1" name="Damaged" type="xsd:string" />
+								<xsd:element minOccurs="0" maxOccurs="1" name="Destroyed" type="xsd:string" />
                                 <xsd:element name="ActorProperty" type="xsd:string" />
                               </xsd:sequence>
                             </xsd:complexType>
                           </xsd:element>
-                        </xsd:sequence>
+						</xsd:sequence>
                       </xsd:complexType>
                     </xsd:element>
                   </xsd:sequence>
@@ -60,6 +62,9 @@
               <xsd:element name="EntityLastKnownOrientation" type="xsd:string" />
               <xsd:element name="EntityDeadReckoningAlgorithm" type="xsd:string" />
               <xsd:element name="EntityGroundClamp" type="xsd:string" />
+			  <xsd:element name="EntityNonDamaged" type="xsd:string" />
+			  <xsd:element name="EntityDamaged" type="xsd:string" />
+			  <xsd:element name="EntityDestroyed" type="xsd:string" />
             </xsd:choice>
           </xsd:complexType>
         </xsd:element>

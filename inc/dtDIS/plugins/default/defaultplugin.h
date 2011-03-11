@@ -27,10 +27,14 @@
 
 namespace dtDIS
 {
+   class DetonationPduProcessor;
+   class FirePduProcessor;
    class ESPduProcessor;
    class CreateEntityProcessor;
    class RemoveEntityProcessor;
    class ActorUpdateToEntityState;
+   class DetonationToPdu;
+   class FireToPdu;
 
    /// the plugin to support various DIS::Pdu types.
    class DT_DIS_DEFAULT_EXPORT DefaultPlugin : public dtDIS::IDISPlugin
@@ -52,10 +56,14 @@ namespace dtDIS
       ///\todo inform the sending adapter of the new actors or modify the ActiveEntityControl.
       void OnActorAdded(dtGame::GameActorProxy* actor);
 
+      DetonationPduProcessor* mDetonationProcessor;
+      FirePduProcessor* mFireProcessor;
       ESPduProcessor* mESProcessor;
       CreateEntityProcessor* mCreateProcessor;
       RemoveEntityProcessor* mRemoveProcessor;
       ActorUpdateToEntityState* mSendingAdapter;
+      DetonationToPdu* mDetonationSendingAdapter;
+      FireToPdu* mFireSendingAdapter;
       const dtDIS::SharedState* mConfig;
    };
 }
