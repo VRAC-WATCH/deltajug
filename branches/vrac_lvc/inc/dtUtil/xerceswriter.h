@@ -35,7 +35,7 @@
 XERCES_CPP_NAMESPACE_BEGIN
    class DOMElement;
    class DOMDocument;
-   class DOMImplementation;
+   class DOMImplementationLS;
 XERCES_CPP_NAMESPACE_END
 
 namespace dtUtil
@@ -67,7 +67,7 @@ namespace dtUtil
       XercesWriter(const XercesWriter&); /// not implemented because copying these members would be bad
       XercesWriter& operator =(const XercesWriter&); /// not implemented because copying these members would be bad
 
-      XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementation* mImplementation;
+      XERCES_CPP_NAMESPACE_QUALIFIER DOMImplementationLS* mImplementation;
       XERCES_CPP_NAMESPACE_QUALIFIER DOMDocument* mDocument;
    };
 }

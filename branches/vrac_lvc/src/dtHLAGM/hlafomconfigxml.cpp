@@ -492,7 +492,7 @@ namespace dtHLAGM
       }
    }
 
-   void HLAFOMConfigContentHandler::characters(const XMLCh* const chars, const unsigned int length)
+   void HLAFOMConfigContentHandler::characters(const XMLCh* const chars, const XMLSize_t length)
    {
       dtUtil::XMLStringConverter charsConverter(chars);
       const std::string sChars(charsConverter.c_str());
@@ -1300,7 +1300,7 @@ namespace dtHLAGM
                          "Parsing HLA FOM Configuration Document Ended.\n");
    }
 
-   void HLAFOMConfigContentHandler::ignorableWhitespace(const XMLCh* const chars, const unsigned int length)
+   void HLAFOMConfigContentHandler::ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length)
    {
       //okay, so I'm ignoring it.
    }

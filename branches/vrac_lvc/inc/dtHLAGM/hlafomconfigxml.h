@@ -74,7 +74,7 @@ namespace dtHLAGM
          /**
           * @see DocumentHandler#characters
           */
-         virtual void characters(const XMLCh* const chars, const unsigned int length);
+         virtual void characters(const XMLCh* const chars, const XMLSize_t length);
 
          /**
           * @see DocumentHandler#endDocument
@@ -89,7 +89,7 @@ namespace dtHLAGM
          /**
           * @see DocumentHandler#ignorableWhitespace
           */
-         virtual void ignorableWhitespace(const XMLCh* const chars, const unsigned int length);
+         virtual void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length);
 
          /**
           * @see DocumentHandler#processingInstruction

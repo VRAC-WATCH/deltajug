@@ -408,7 +408,7 @@ void CharacterFileHandler::endElement(const XMLCh* const uri,
 
 ////////////////////////////////////////////////////////////////////////////////
 void CharacterFileHandler::characters(const XMLCh* const chars,
-                                      const unsigned int length)
+                                      const XMLSize_t length)
 {
    if (mElements.empty())
    {

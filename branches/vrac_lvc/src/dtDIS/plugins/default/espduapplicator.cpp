@@ -354,6 +354,8 @@ void VeldtModelPartialApplicator::operator()(const DIS::EntityStatePdu& sourcePd
 		const ResourceMapConfig& resources = sharedState->GetHealthyResourceMap();
 		bool found = resources.GetMappedResource(sourcePdu.getEntityType(), undamagedResource);
 
+		const DIS::EntityType& entity_type = sourcePdu.getEntityType();
+
         //LCR: Use DIS Enum (0,0,0,0,0,0,0) for a default mapping to an random object of some sort
         //Obviously for this to work the mapping must be in the mapping file and the mapped Mesh must available
         if( !found ) 
@@ -460,13 +462,30 @@ void PartialApplicator::operator ()(const DIS::EntityStatePdu& sourcePdu,
    osg::Vec3 xyzRotation;
 
    const DIS::Orientation& orientation = sourcePdu.getEntityOrientation();
-   const osg::Vec3 headingPitchRoll = 
+	printf("prev - yaw : %f\n", orientation.getTheta());
+	const osg::Vec3 headingPitchRoll = 
 	   sharedState->GetCoordinateConverter().ConvertToLocalRotation(
 	      orientation.getPsi(), orientation.getTheta(), orientation.getPhi());
-      
+
    xyzRotation[0] = headingPitchRoll[0];
    xyzRotation[1] = headingPitchRoll[1];
    xyzRotation[2] = headingPitchRoll[2];
+
+	const DIS::EntityID& entity_id = sourcePdu.getEntityID();
+	if(entity_id.getEntity() == 50)
+	{
+		printf("yaw : %f\n", xyzRotation[1]);
+		xyzRotation.set(2*xyzRotation[1],0,0);
+		/*
+		orientation.set(orientation[0], 2*orientation[1], orientation[2]);
+		printf("yaw : %f\n", orientation[1]);
+		orientationMatrix.makeRotate(orientation[1], zAxis);
+		osg::Matrix rotMat(osg::Matrix::identity());
+		rotMat.makeRotate(0.5*osg::PI, xAxis);
+		orientationMatrix.preMult(rotMat);
+		*/
+	}
+
    
    parameter = gameMessage.AddUpdateParameter(dtDIS::EnginePropertyName::LAST_KNOWN_ORIENTATION, dtDAL::DataType::VEC3);
    if (parameter)
