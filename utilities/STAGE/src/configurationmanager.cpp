@@ -10,7 +10,7 @@
 
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/XMLUni.hpp>
-
+#include <stdio.h>
 #include <sstream>
 
 namespace dtEditQt

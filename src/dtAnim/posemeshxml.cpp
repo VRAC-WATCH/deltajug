@@ -104,7 +104,7 @@ void PoseMeshFileHandler::endElement(const XMLCh* const uri,const XMLCh* const l
 }
 
 ////////////////////////////////////////////////////////////////////////////////
-void PoseMeshFileHandler::characters(const XMLCh* const chars, const unsigned int length)
+void PoseMeshFileHandler::characters(const XMLCh* const chars, const XMLSize_t length)
 {
    switch (mNodeStack.top())
    {

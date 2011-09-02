@@ -73,10 +73,10 @@ namespace dtDIS
       ~ConnectionXMLHandler();
 
       // inherited pure virtual functions
-      void characters(const XMLCh* const chars, const unsigned int length);
+      void characters(const XMLCh* const chars, const XMLSize_t length);
       void endDocument();
       void endElement(const XMLCh* const uri,const XMLCh* const localname,const XMLCh* const qname);
-      void ignorableWhitespace(const XMLCh* const chars, const unsigned int length);
+      void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length);
       void processingInstruction(const XMLCh* const target, const XMLCh* const data);
       void setDocumentLocator(const XERCES_CPP_NAMESPACE_QUALIFIER Locator* const locator);
       void startDocument();
@@ -171,10 +171,10 @@ namespace dtDIS
       ~EntityMapXMLHandler();
 
       // inherited pure virtual functions
-      void characters(const XMLCh* const chars, const unsigned int length);
+      void characters(const XMLCh* const chars, const XMLSize_t length);
       void endDocument();
       void endElement(const XMLCh* const uri,const XMLCh* const localname,const XMLCh* const qname);
-      void ignorableWhitespace(const XMLCh* const chars, const unsigned int length);
+      void ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length);
       void processingInstruction(const XMLCh* const target, const XMLCh* const data);
       void setDocumentLocator(const XERCES_CPP_NAMESPACE_QUALIFIER Locator* const locator);
       void startDocument();

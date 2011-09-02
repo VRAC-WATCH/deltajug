@@ -1,6 +1,7 @@
 #include <prefix/dtutilprefix-src.h>
 #include <dtUtil/datetime.h>
 #include <dtUtil/macros.h>
+#include <stdio.h>
 #include <cmath>
 #include <cstring>
 

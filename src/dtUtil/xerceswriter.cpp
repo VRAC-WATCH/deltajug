@@ -5,8 +5,11 @@
 #include <xercesc/framework/LocalFileFormatTarget.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
+#include <xercesc/dom/DOMImplementationLS.hpp>
+#include <xercesc/dom/DOMConfiguration.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
 #include <xercesc/util/XMLUni.hpp>
 #include <xercesc/util/XMLString.hpp>
 #include <xercesc/util/OutOfMemoryException.hpp>
@@ -35,7 +38,7 @@ XercesWriter::XercesWriter(): mImplementation(0), mDocument(0)
 
    try
    {
-      DOMImplementation* impl;
+      DOMImplementationLS* impl;
       XMLCh* CORE = XMLString::transcode("Core");  // xerces example used "Core", no idea if that is necessary.
       impl = DOMImplementationRegistry::getDOMImplementation( CORE );
       XMLString::release( &CORE );
@@ -69,7 +72,7 @@ void XercesWriter::CreateDocument(const std::string& rootname)
       try
       {
          XMLCh* ROOTNAME = XMLString::transcode( rootname.c_str() );
-         mDocument = mImplementation->createDocument(0,ROOTNAME,0);
+         mDocument = ( (DOMImplementation*) mImplementation)->createDocument(0,ROOTNAME,0);
          XMLString::release( &ROOTNAME );
       }
       catch(...)
@@ -96,14 +99,18 @@ void XercesWriter::WriteFile(const std::string& outputfile)
    }
 
    // make a writer
-   DOMWriter* writer;
+   DOMLSSerializer* writer;
+   DOMConfiguration* dc = writer->getDomConfig();
    LocalFileFormatTarget* xmlstream;
+   DOMLSOutput* output;
    XMLCh* OUTPUT;
    try
    {
       OUTPUT = XMLString::transcode( outputfile.c_str() );
       xmlstream = new LocalFileFormatTarget( OUTPUT );
-      writer = mImplementation->createDOMWriter();
+      writer = mImplementation->createLSSerializer();
+      output = mImplementation->createLSOutput();
+      output->setByteStream(xmlstream);
    }
    catch(...)
    {
@@ -114,15 +121,15 @@ void XercesWriter::WriteFile(const std::string& outputfile)
    }
 
    // turn on pretty print
-   if( writer->canSetFeature(XMLUni::fgDOMWRTFormatPrettyPrint,true) )
+   if( dc->canSetParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true) )
    {
-      writer->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint,true);
+      dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint,true);
    }
 
    // write it!
    try
    {
-      if( !writer->writeNode(xmlstream, *mDocument) )
+      if( !writer->write(mDocument, output) )
       {
          LOG_ERROR("There was a problem writing file, " + outputfile)
       }

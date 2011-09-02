@@ -152,7 +152,7 @@ namespace  dtDAL
    }
 
    /////////////////////////////////////////////////////////////////
-   void MapContentHandler::characters(const XMLCh* const chars, const unsigned int length)
+   void MapContentHandler::characters(const XMLCh* const chars, const XMLSize_t length)
    {
       xmlCharString& topEl = mElements.top();
       if (mInMap || mInPrefab)
@@ -1914,7 +1914,7 @@ namespace  dtDAL
 
    void MapContentHandler::skippedEntity(const XMLCh* const name) {}
 
-   void MapContentHandler::ignorableWhitespace(const XMLCh* const chars, const unsigned int length) {}
+   void MapContentHandler::ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) {}
 
    void MapContentHandler::processingInstruction(const XMLCh* const target, const XMLCh* const data) {}
 

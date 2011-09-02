@@ -42,7 +42,7 @@ namespace dtABC
    {
    }
 
-   void ApplicationConfigHandler::characters(const XMLCh* const chars, const unsigned int length)
+   void ApplicationConfigHandler::characters(const XMLCh* const chars, const XMLSize_t length)
    {
       if (mCurrentElement == ApplicationConfigSchema::LIBRARY_PATH)
       {
@@ -61,7 +61,7 @@ namespace dtABC
       mPropertyName.clear();
    }
 
-   void ApplicationConfigHandler::ignorableWhitespace(const XMLCh* const chars, const unsigned int length) {}
+   void ApplicationConfigHandler::ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length) {}
    void ApplicationConfigHandler::processingInstruction(const XMLCh* const target, const XMLCh* const data) {}
    void ApplicationConfigHandler::setDocumentLocator(const XERCES_CPP_NAMESPACE_QUALIFIER Locator* const locator) {}
    void ApplicationConfigHandler::startDocument() {}

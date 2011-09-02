@@ -34,7 +34,7 @@
 #include <xercesc/util/OutOfMemoryException.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <xercesc/framework/LocalFileInputSource.hpp>
-#include <xercesc/internal/XMLGrammarPoolImpl.hpp>
+#include <xercesc/framework/XMLGrammarPoolImpl.hpp>
 #include <xercesc/sax/SAXParseException.hpp>
 
 #ifdef _MSC_VER
@@ -394,7 +394,7 @@ namespace dtDAL
 
    void MapWriter::MapFormatTarget::writeChars(
       const XMLByte* const toWrite,
-      const unsigned int count,
+      const XMLSize_t count,
       xercesc::XMLFormatter* const formatter)
    {
       if (mOutFile != NULL)

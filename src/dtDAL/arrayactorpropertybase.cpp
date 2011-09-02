@@ -3,6 +3,7 @@
 #include <dtUtil/macros.h>
 #include <dtUtil/stringutils.h>
 #include <dtDAL/datatype.h>
+#include <stdio.h>
 
 using namespace dtDAL;
 

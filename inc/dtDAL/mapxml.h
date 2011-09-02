@@ -181,7 +181,7 @@ namespace dtDAL
 
                virtual void writeChars(
                   const XMLByte* const toWrite,
-                  const unsigned int count,
+                  const XMLSize_t count,
                   xercesc::XMLFormatter* const formatter);
 
                virtual void flush();

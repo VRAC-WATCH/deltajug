@@ -47,7 +47,7 @@ const dtDIS::ConnectionData& ConnectionXMLHandler::GetConnectionData() const
    return mConnectionData;
 }
 
-void ConnectionXMLHandler::characters(const XMLCh* const chars, const unsigned int length)
+void ConnectionXMLHandler::characters(const XMLCh* const chars, const XMLSize_t length)
 {
    if( mNodeStack.empty() )
    {
@@ -116,7 +116,7 @@ void ConnectionXMLHandler::endElement(const XMLCh* const uri,const XMLCh* const 
    mNodeStack.pop();
 }
 
-void ConnectionXMLHandler::ignorableWhitespace(const XMLCh* const chars, const unsigned int length)
+void ConnectionXMLHandler::ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length)
 {
 }
 
@@ -237,7 +237,7 @@ EntityMapXMLHandler::~EntityMapXMLHandler()
 {
 }
 
-void EntityMapXMLHandler::characters(const XMLCh* const chars, const unsigned int length)
+void EntityMapXMLHandler::characters(const XMLCh* const chars, const XMLSize_t length)
 {
    if( mNodeStack.empty() )
    {
@@ -500,7 +500,7 @@ void EntityMapXMLHandler::endElement(const XMLCh* const uri,const XMLCh* const l
    mNodeStack.pop();
 }
 
-void EntityMapXMLHandler::ignorableWhitespace(const XMLCh* const chars, const unsigned int length)
+void EntityMapXMLHandler::ignorableWhitespace(const XMLCh* const chars, const XMLSize_t length)
 {
 }
 

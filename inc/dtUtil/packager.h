@@ -22,7 +22,7 @@
 #ifndef DELTA_PACKAGER_UTIL
 #define DELTA_PACKAGER_UTIL
 
-
+#include <stdio.h>
 #include <string>
 #include <vector>
 
